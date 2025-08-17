@@ -1,33 +1,63 @@
-# Context Engineering Template
+# MPOWER Mortality Causal Analysis
 
-A comprehensive template for getting started with Context Engineering - the discipline of engineering context for AI coding assistants so they have the information necessary to get the job done end to end.
+A comprehensive causal inference analysis of WHO MPOWER tobacco control policies' impact on mortality outcomes using modern econometric methods.
 
-> **Context Engineering is 10x better than prompt engineering and 100x better than vibe coding.**
+> **Implements Callaway & Sant'Anna (2021) staggered difference-in-differences and other state-of-the-art causal inference methods.**
+
+## Project Status: ✅ Data Processing Complete
+
+**Current Status**: Analysis-ready dataset successfully created from WHO MPOWER, IHME GBD, and World Bank data sources.
+
+**Data Summary**:
+- 📊 **Panel**: 195 countries, 1,170 observations (2008-2018)
+- 🎯 **Treatment**: 44 countries with staggered MPOWER adoption (2009-2017)
+- 📈 **Outcomes**: Age-standardized mortality rates (lung cancer, CVD, IHD, COPD)
+- 🎛️ **Controls**: GDP, urbanization, population, education expenditure
 
 ## 🚀 Quick Start
 
 ```bash
-# 1. Clone this template
-git clone https://github.com/coleam00/Context-Engineering-Intro.git
-cd Context-Engineering-Intro
+# 1. Set up the environment
+source .venv/bin/activate  # Virtual environment already configured
 
-# 2. Set up your project rules (optional - template provided)
-# Edit CLAUDE.md to add your project-specific guidelines
+# 2. View the processed data
+ls data/processed/
+# - analysis_ready_data.csv: Final dataset for causal analysis
+# - integrated_panel.csv: Raw merged data from all sources
+# - DATA_PROCESSING_SUMMARY.md: Complete documentation
 
-# 3. Add examples (highly recommended)
-# Place relevant code examples in the examples/ folder
+# 3. Run the data processing pipeline (if needed)
+python scripts/data_processing.py
 
-# 4. Create your initial feature request
-# Edit INITIAL.md with your feature requirements
-
-# 5. Generate a comprehensive PRP (Product Requirements Prompt)
-# In Claude Code, run:
-/generate-prp INITIAL.md
-
-# 6. Execute the PRP to implement your feature
-# In Claude Code, run:
-/execute-prp PRPs/your-feature-name.md
+# 4. Next: Implement causal inference analysis
+# Ready for Callaway & Sant'Anna staggered DiD, TWFE, synthetic control
 ```
+
+## 📊 Data Processing Pipeline ✅ COMPLETED
+
+The data preparation pipeline has been successfully implemented and executed:
+
+### Data Sources Integrated
+- **WHO MPOWER**: Tobacco control policy scores (M,P,O,W,E,R components) for 195 countries
+- **IHME GBD**: Age-standardized mortality rates for tobacco-related diseases
+- **World Bank WDI**: Economic and demographic control variables
+
+### Treatment Definition
+- **Binary Threshold**: Countries achieving MPOWER total score ≥25 (out of 29)
+- **Sustainability**: Must maintain high score for ≥2 consecutive periods
+- **Staggered Adoption**: 44 countries treated in different years (2009-2017)
+- **Control Group**: 151 never-treated countries
+
+### Data Quality
+- ✅ **Panel Structure**: Balanced country-year observations
+- ✅ **Missing Data**: <3% for mortality outcomes, ~14% for some controls
+- ✅ **Time Coverage**: 2008-2018 (overlapping period across all sources)
+- ✅ **Country Coverage**: 195 countries with sufficient data
+
+### Key Files Generated
+- `scripts/data_processing.py`: Complete pipeline with documentation
+- `data/processed/analysis_ready_data.csv`: Final analysis dataset
+- `data/processed/DATA_PROCESSING_SUMMARY.md`: Comprehensive documentation
 
 ## 📚 Table of Contents
 
