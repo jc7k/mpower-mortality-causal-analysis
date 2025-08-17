@@ -1,0 +1,78 @@
+# Virtual environments
+venv/
+venv_linux/
+.venv/
+.env/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.Python
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Linting & Formatting
+.ruff_cache/
+.mypy_cache/
+.black
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Data files (large datasets)
+*.csv
+*.xlsx
+*.parquet
+*.feather
+*.dta
+*.sav
+*.h5
+*.hdf5
+
+# Sensitive data
+.env
+.env.local
+.env.*.local
+secrets/
+config/local.py
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Model outputs
+models/
+outputs/
+results/
+plots/

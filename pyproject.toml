@@ -1,0 +1,134 @@
+[project]
+name = "mpower-mortality-causal-analysis"
+version = "0.1.0"
+description = "Causal analysis of WHO MPOWER tobacco control policies' impact on global mortality outcomes using panel data (2008-2019) and advanced econometric methods including Callaway & Sant'Anna difference-in-differences."
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    {name = "Jeff Chen", email = "jeffreyc1@alumni.cmu.edu"}
+]
+keywords = ["causal-inference", "econometrics", "tobacco-control", "mortality", "panel-data", "difference-in-differences"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis"
+]
+dependencies = [
+    # Data Processing & Analysis
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "statsmodels>=0.14.0",
+    "linearmodels>=5.0",
+    "pyfixest>=0.18.0",
+    # "differences>=0.2.0",  # Conflict with linearmodels - will install separately if needed
+    "scikit-learn>=1.3.0",
+    # Visualization & Reporting
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "plotly>=5.14.0",
+    "weasyprint>=60.0",
+    # Data Sources & APIs
+    "wbgapi>=1.0.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "tabula-py>=2.5.0",
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "tqdm>=4.65.0",
+    "pysyncon>=1.5.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.3.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.3.0"
+]
+jupyter = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.25.0",
+    "nbformat>=5.9.0"
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.1.0",
+    "mkdocstrings[python]>=0.22.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mpower_mortality_causal_analysis"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C", "I", "N", "D", "UP", "S", "B", "A", "C4", "ICN", "PIE", "T20", "RET", "SIM", "ARG", "ERA", "PL", "TRY"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+# Import sorting configuration
+known-first-party = ["mpower_mortality_causal_analysis"]
+force-single-line = false
+lines-between-types = 1
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+# Indent with spaces
+indent-style = "space"
+# Respect magic trailing comma
+skip-magic-trailing-comma = false
+# Automatically detect line ending
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
+addopts = "--cov=src --cov-report=html --cov-report=term-missing"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "mypy>=1.17.1",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.9",
+]
+jupyter = [
+    "ipykernel>=6.30.1",
+    "jupyter>=1.1.1",
+    "nbformat>=5.10.4",
+]

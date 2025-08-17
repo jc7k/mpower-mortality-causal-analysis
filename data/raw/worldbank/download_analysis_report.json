@@ -1,0 +1,57 @@
+{
+  "analysis_date": "2025-08-14T04:23:15.104147",
+  "file_analyzed": "data/raw/worldbank/worldbank_wdi_manual_20250814.csv",
+  "dataset_shape": [
+    803,
+    16
+  ],
+  "indicators_found": 2,
+  "indicators_expected": 9,
+  "indicators_missing": 7,
+  "countries_total": 267,
+  "countries_individual": 266,
+  "regional_aggregates": 0,
+  "years_coverage": "2008-2019",
+  "target_period_covered": true,
+  "indicators_present": [
+    "NY.GDP.PCAP.CD",
+    "SP.URB.TOTL.IN.ZS",
+    "SH.XPD.CHEX.GD.ZS"
+  ],
+  "indicators_missing_list": [
+    "NY.GDP.PCAP.KD",
+    "SE.XPD.TOTL.GD.ZS",
+    "SP.DYN.LE00.IN",
+    "SP.POP.TOTL",
+    "NY.GDP.MKTP.KD.ZG",
+    "SP.DYN.IMRT.IN",
+    "SH.DYN.NCOM.ZS"
+  ],
+  "sample_countries": [
+    "ABW",
+    "AFE",
+    "AFG",
+    "AFW",
+    "AGO",
+    "ALB",
+    "AND",
+    "ARB",
+    "ARE",
+    "ARG",
+    "ARM",
+    "ASM",
+    "ATG",
+    "AUS",
+    "AUT",
+    "AZE",
+    "BDI",
+    "BEL",
+    "BEN",
+    "BFA"
+  ],
+  "data_quality_notes": {
+    "has_regional_aggregates": false,
+    "includes_2019_data": true,
+    "complete_target_period": true
+  }
+}

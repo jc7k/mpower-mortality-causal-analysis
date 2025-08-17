@@ -1,0 +1,28 @@
+{
+  "analysis_date": "2025-08-14T04:33:39.673381",
+  "files_analyzed": [
+    "data/raw/worldbank/worldbank_wdi_manual_20250814.csv",
+    "data/raw/worldbank/worldbank_wdi_additional_20250815.csv"
+  ],
+  "total_indicators_expected": 10,
+  "total_indicators_found": 10,
+  "indicators_missing": [],
+  "coverage_percentage": 100.0,
+  "indicators_found": {
+    "NY.GDP.PCAP.KD": "File 2",
+    "NY.GDP.PCAP.CD": "Both files",
+    "SP.URB.TOTL.IN.ZS": "Both files",
+    "SH.XPD.CHEX.GD.ZS": "Both files",
+    "SE.XPD.TOTL.GD.ZS": "File 2",
+    "SP.DYN.LE00.IN": "File 2",
+    "SP.POP.TOTL": "File 2",
+    "NY.GDP.MKTP.KD.ZG": "File 2",
+    "SP.DYN.IMRT.IN": "File 2",
+    "SH.DYN.NCOM.ZS": "File 2"
+  },
+  "countries_covered": 266,
+  "years_covered": "2008-2019",
+  "gdp_data_type": "constant USD",
+  "ready_for_integration": true,
+  "critical_indicators_present": true
+}
