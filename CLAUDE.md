@@ -36,6 +36,7 @@
 - **Run tests using uv**: `uv run pytest` or `uv run python -m pytest tests/`
 - **Test coverage**: Use `uv run pytest --cov=src --cov-report=html` for coverage reports
 - **Linting**: Run `uv run ruff check src/` and `uv run black --check src/` before commits
+- **Pre-commit checks**: Use `git diff --check` to detect trailing whitespace before committing
 
 ### ✅ Task Completion
 - **Mark completed tasks in `TASK.md`** immediately after finishing them.
@@ -96,6 +97,13 @@
 - **Update `README.md`** when new features are added, dependencies change, or setup steps are modified.
 - **Comment non-obvious code** and ensure everything is understandable to a mid-level developer.
 - When writing complex logic, **add an inline `# Reason:` comment** explaining the why, not just the what.
+
+### 🔧 Pre-commit Hook Compliance
+- **NEVER leave trailing whitespace** - Always end lines cleanly without spaces or tabs
+- **Ensure files end with newline** - All files must have exactly one blank line at the end
+- **Check before committing**: Trailing whitespace causes pre-commit hook failures that require re-staging
+- **Text editor settings**: Configure editor to show and remove trailing whitespace automatically
+- **Review changes carefully**: Use `git diff --check` to detect whitespace issues before commit
 
 ### 🧠 AI Behavior Rules
 - **Never assume missing context. Ask questions if uncertain.**
