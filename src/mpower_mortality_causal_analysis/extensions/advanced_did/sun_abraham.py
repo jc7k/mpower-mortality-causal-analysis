@@ -82,7 +82,7 @@ class SunAbrahamEstimator:
             warnings.warn(
                 "Unbalanced panel detected. Results may be affected.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
     def _create_cohort_dummies(self, relative_time: int) -> pd.DataFrame:
@@ -137,9 +137,7 @@ class SunAbrahamEstimator:
         )
 
         # For never-treated, set relative time to large negative
-        never_treated_mask = (
-            estimation_data[self.cohort_col] == self.never_treated
-        )
+        never_treated_mask = estimation_data[self.cohort_col] == self.never_treated
         estimation_data.loc[never_treated_mask, "relative_time"] = -999
 
         # Create cohort-specific post-treatment indicators
@@ -151,13 +149,9 @@ class SunAbrahamEstimator:
             # Cohort-specific ATT
 
             # Run regression for this cohort
-            cohort_data = estimation_data[
-                cohort_mask | never_treated_mask
-            ].copy()
+            cohort_data = estimation_data[cohort_mask | never_treated_mask].copy()
 
-            cohort_data["treatment"] = (
-                cohort_data["relative_time"] >= 0
-            ).astype(int)
+            cohort_data["treatment"] = (cohort_data["relative_time"] >= 0).astype(int)
 
             # Add fixed effects
             y = cohort_data[outcome]
@@ -189,7 +183,7 @@ class SunAbrahamEstimator:
                 warnings.warn(
                     f"Estimation failed for cohort {cohort}: {e}",
                     UserWarning,
-                    stacklevel=2
+                    stacklevel=2,
                 )
                 cohort_effects[cohort] = None
 

@@ -69,7 +69,7 @@ class DCDHEstimator:
             warnings.warn(
                 "Unbalanced panel detected. Results may be affected.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
     def _identify_switchers(
@@ -85,15 +85,15 @@ class DCDHEstimator:
             Tuple of (switchers_in, switchers_out) DataFrames
         """
         # Create lagged treatment
-        self.data["treatment_lag"] = self.data.groupby(self.unit_col)[
-            treatment
-        ].shift(1)
+        self.data["treatment_lag"] = self.data.groupby(self.unit_col)[treatment].shift(
+            1
+        )
 
         if threshold is not None:
             # Binary treatment from continuous
-            self.data["treatment_binary"] = (
-                self.data[treatment] >= threshold
-            ).astype(int)
+            self.data["treatment_binary"] = (self.data[treatment] >= threshold).astype(
+                int
+            )
             self.data["treatment_binary_lag"] = (
                 self.data["treatment_lag"] >= threshold
             ).astype(int)
@@ -162,26 +162,20 @@ class DCDHEstimator:
         # Check sufficient switchers
         if len(switchers_in) < MIN_SWITCHERS:
             warnings.warn(
-                f"Only {len(switchers_in)} switchers in. "
-                f"Results may be unreliable.",
+                f"Only {len(switchers_in)} switchers in. Results may be unreliable.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
         if len(switchers_out) < MIN_SWITCHERS:
             warnings.warn(
-                f"Only {len(switchers_out)} switchers out. "
-                f"Results may be unreliable.",
+                f"Only {len(switchers_out)} switchers out. Results may be unreliable.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
         # Calculate outcome changes
-        self.data["outcome_lag"] = self.data.groupby(self.unit_col)[
-            outcome
-        ].shift(1)
-        self.data["outcome_change"] = (
-            self.data[outcome] - self.data["outcome_lag"]
-        )
+        self.data["outcome_lag"] = self.data.groupby(self.unit_col)[outcome].shift(1)
+        self.data["outcome_change"] = self.data[outcome] - self.data["outcome_lag"]
 
         # Estimate effects for switchers in
         if len(switchers_in) > 0:
@@ -203,9 +197,7 @@ class DCDHEstimator:
 
                 # Second stage: regress outcome change on fitted treatment
                 x_in["d_hat"] = d_hat
-                second_stage = OLS(
-                    y_in, x_in[["const", "d_hat"]], missing="drop"
-                ).fit()
+                second_stage = OLS(y_in, x_in[["const", "d_hat"]], missing="drop").fit()
 
                 att_in = second_stage.params["d_hat"]
                 se_in = second_stage.bse["d_hat"]
@@ -430,9 +422,7 @@ class DCDHEstimator:
             # Chi-square test for heterogeneity
             weights = 1 / np.array(ses) ** 2
             weighted_mean = np.average(atts, weights=weights)
-            chi_sq = np.sum(
-                ((np.array(atts) - weighted_mean) / np.array(ses)) ** 2
-            )
+            chi_sq = np.sum(((np.array(atts) - weighted_mean) / np.array(ses)) ** 2)
             p_value = 1 - stats.chi2.cdf(chi_sq, df=len(atts) - 1)
 
             heterogeneity_results["heterogeneity_test"] = {

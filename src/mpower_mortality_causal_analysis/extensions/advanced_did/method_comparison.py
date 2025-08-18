@@ -150,11 +150,7 @@ class MethodComparison:
         try:
             # Initialize estimator
             estimator = SunAbrahamEstimator(
-                self.data,
-                self.cohort_col,
-                self.time_col,
-                self.unit_col,
-                **kwargs
+                self.data, self.cohort_col, self.time_col, self.unit_col, **kwargs
             )
 
             # Estimate effects
@@ -182,14 +178,12 @@ class MethodComparison:
                 computation_time=computation_time,
                 n_treated=len(
                     self.data[
-                        self.data[self.cohort_col]
-                        != self.data[self.time_col].max() + 1
+                        self.data[self.cohort_col] != self.data[self.time_col].max() + 1
                     ]
                 ),
                 n_control=len(
                     self.data[
-                        self.data[self.cohort_col]
-                        == self.data[self.time_col].max() + 1
+                        self.data[self.cohort_col] == self.data[self.time_col].max() + 1
                     ]
                 ),
                 additional_info={
@@ -200,9 +194,7 @@ class MethodComparison:
 
         except Exception as e:
             warnings.warn(
-                f"Sun & Abraham estimation failed: {e}",
-                UserWarning,
-                stacklevel=2
+                f"Sun & Abraham estimation failed: {e}", UserWarning, stacklevel=2
             )
             return MethodResult(
                 method_name="Sun & Abraham (2021)",
@@ -264,11 +256,7 @@ class MethodComparison:
             )
 
         except Exception as e:
-            warnings.warn(
-                f"Borusyak estimation failed: {e}",
-                UserWarning,
-                stacklevel=2
-            )
+            warnings.warn(f"Borusyak estimation failed: {e}", UserWarning, stacklevel=2)
             return MethodResult(
                 method_name="Borusyak et al. (2021)",
                 att=np.nan,
@@ -335,9 +323,7 @@ class MethodComparison:
             )
 
         except Exception as e:
-            warnings.warn(
-                f"DCDH estimation failed: {e}", UserWarning, stacklevel=2
-            )
+            warnings.warn(f"DCDH estimation failed: {e}", UserWarning, stacklevel=2)
             return MethodResult(
                 method_name="de Chaisemartin & D'Haultfœuille",
                 att=np.nan,
@@ -452,14 +438,12 @@ class MethodComparison:
                     warnings.warn(
                         "Doubly robust requires covariates, skipping",
                         UserWarning,
-                        stacklevel=2
+                        stacklevel=2,
                     )
                     continue
             else:
                 warnings.warn(
-                    f"Unknown method: {method_name}",
-                    UserWarning,
-                    stacklevel=2
+                    f"Unknown method: {method_name}", UserWarning, stacklevel=2
                 )
                 continue
 
@@ -582,7 +566,7 @@ class MethodComparison:
             warnings.warn(
                 "No results to plot. Run run_all_methods first.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
             return
 

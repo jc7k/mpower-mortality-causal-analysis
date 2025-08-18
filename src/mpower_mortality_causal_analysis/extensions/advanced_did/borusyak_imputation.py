@@ -81,9 +81,7 @@ class BorusyakImputation:
             # Find first treatment time for each unit
             treated_data = self.data[self.data[self.treatment_col] == 1]
             if len(treated_data) > 0:
-                return treated_data.groupby(self.unit_col)[
-                    self.time_col
-                ].min()
+                return treated_data.groupby(self.unit_col)[self.time_col].min()
 
         # Return empty series if no treatment timing found
         return pd.Series(dtype="int64")
@@ -121,9 +119,7 @@ class BorusyakImputation:
                 imputed_df.loc[unit_mask & post_mask, "is_treated"] = True
         else:
             warnings.warn(
-                "No treated units identified for imputation",
-                UserWarning,
-                stacklevel=2
+                "No treated units identified for imputation", UserWarning, stacklevel=2
             )
 
         if method == "fe":
@@ -290,9 +286,7 @@ class BorusyakImputation:
         treated_data = self.imputed_data[self.imputed_data["is_treated"]]
 
         if len(treated_data) == 0:
-            warnings.warn(
-                "No treated observations found", UserWarning, stacklevel=2
-            )
+            warnings.warn("No treated observations found", UserWarning, stacklevel=2)
             return {"att": np.nan, "se": np.nan}
 
         if level == "average":
@@ -303,18 +297,13 @@ class BorusyakImputation:
                 # Bootstrap standard errors
                 bootstrap_atts = []
                 for _ in range(n_bootstrap):
-                    sample = treated_data.sample(
-                        n=len(treated_data), replace=True
-                    )
+                    sample = treated_data.sample(n=len(treated_data), replace=True)
                     bootstrap_atts.append(sample["treatment_effect"].mean())
 
                 se = np.std(bootstrap_atts)
             else:
                 # Analytical standard error
-                se = (
-                    treated_data["treatment_effect"].std()
-                    / np.sqrt(len(treated_data))
-                )
+                se = treated_data["treatment_effect"].std() / np.sqrt(len(treated_data))
 
             return {
                 "att": att,
@@ -328,17 +317,17 @@ class BorusyakImputation:
 
         if level == "unit":
             # Unit-specific effects
-            unit_effects = treated_data.groupby(self.unit_col)[
-                "treatment_effect"
-            ].agg(["mean", "std", "count"])
+            unit_effects = treated_data.groupby(self.unit_col)["treatment_effect"].agg(
+                ["mean", "std", "count"]
+            )
 
             return unit_effects.to_dict("index")
 
         if level == "time":
             # Time-specific effects
-            time_effects = treated_data.groupby(self.time_col)[
-                "treatment_effect"
-            ].agg(["mean", "std", "count"])
+            time_effects = treated_data.groupby(self.time_col)["treatment_effect"].agg(
+                ["mean", "std", "count"]
+            )
 
             return time_effects.to_dict("index")
 
@@ -348,13 +337,11 @@ class BorusyakImputation:
 
             # Add cohort information
             treated_data = treated_data.copy()
-            treated_data["cohort"] = treated_data[self.unit_col].map(
-                treatment_timing
-            )
+            treated_data["cohort"] = treated_data[self.unit_col].map(treatment_timing)
 
-            cohort_effects = treated_data.groupby("cohort")[
-                "treatment_effect"
-            ].agg(["mean", "std", "count"])
+            cohort_effects = treated_data.groupby("cohort")["treatment_effect"].agg(
+                ["mean", "std", "count"]
+            )
 
             return cohort_effects.to_dict("index")
 
@@ -378,14 +365,10 @@ class BorusyakImputation:
 
         for unit, treat_time in treatment_timing.items():
             unit_data = self.data[self.data[self.unit_col] == unit].copy()
-            pre_data = unit_data[
-                unit_data[self.time_col] < treat_time
-            ].tail(window)
+            pre_data = unit_data[unit_data[self.time_col] < treat_time].tail(window)
 
             if len(pre_data) >= MIN_PRE_PERIODS:
-                pre_data["relative_time"] = (
-                    pre_data[self.time_col] - treat_time
-                )
+                pre_data["relative_time"] = pre_data[self.time_col] - treat_time
                 pre_treatment_data.append(pre_data)
 
         if not pre_treatment_data:

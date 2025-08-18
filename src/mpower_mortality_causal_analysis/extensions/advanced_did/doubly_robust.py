@@ -127,14 +127,10 @@ class DoublyRobustDiD:
             propensity_scores = model.predict_proba(x_scaled)[:, 1]
 
         # Trim extreme propensity scores
-        propensity_scores = np.clip(
-            propensity_scores, MIN_PROPENSITY, MAX_PROPENSITY
-        )
+        propensity_scores = np.clip(propensity_scores, MIN_PROPENSITY, MAX_PROPENSITY)
 
         self.propensity_model = model
-        self.propensity_scores = pd.Series(
-            propensity_scores, index=self.data.index
-        )
+        self.propensity_scores = pd.Series(propensity_scores, index=self.data.index)
 
         return self.propensity_scores
 

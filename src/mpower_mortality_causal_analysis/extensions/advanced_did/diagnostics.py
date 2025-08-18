@@ -41,9 +41,7 @@ def test_parallel_trends(
         Dictionary with test results
     """
     # Identify treatment timing for each unit
-    treatment_timing = data[data[treatment_col] == 1].groupby(unit_col)[
-        time_col
-    ].min()
+    treatment_timing = data[data[treatment_col] == 1].groupby(unit_col)[time_col].min()
 
     # Collect pre-treatment trends
     pre_trends_treated = []
@@ -55,9 +53,7 @@ def test_parallel_trends(
         if unit in treatment_timing.index:
             # Treated unit
             treat_time = treatment_timing[unit]
-            pre_data = unit_data[
-                unit_data[time_col] < treat_time
-            ].tail(pre_periods)
+            pre_data = unit_data[unit_data[time_col] < treat_time].tail(pre_periods)
 
             if len(pre_data) >= MIN_PRE_PERIODS:
                 # Calculate trend
@@ -225,16 +221,14 @@ def test_no_anticipation(
     lead_results = []
 
     for lead in range(1, leads + 1):
-        data[f"treatment_lead_{lead}"] = data.groupby(unit_col)[
-            treatment_col
-        ].shift(-lead)
+        data[f"treatment_lead_{lead}"] = data.groupby(unit_col)[treatment_col].shift(
+            -lead
+        )
 
         # Run regression with lead
 
         # Simple regression (should include fixed effects in practice)
-        valid_data = data.dropna(
-            subset=[outcome, f"treatment_lead_{lead}"]
-        )
+        valid_data = data.dropna(subset=[outcome, f"treatment_lead_{lead}"])
 
         if len(valid_data) > 0:
             x = add_constant(valid_data[f"treatment_lead_{lead}"])
@@ -266,9 +260,7 @@ def test_no_anticipation(
 
     # Wald statistic
     wald_stat = sum(
-        (c / s) ** 2
-        for c, s in zip(lead_coefs, lead_ses, strict=False)
-        if s > 0
+        (c / s) ** 2 for c, s in zip(lead_coefs, lead_ses, strict=False) if s > 0
     )
     p_value = 1 - stats.chi2.cdf(wald_stat, df=len(lead_coefs))
 
@@ -302,12 +294,8 @@ def compute_effective_sample_size(
         weights_treated = weights[treated]
         weights_control = weights[control]
 
-        ess_treated = (
-            (weights_treated.sum() ** 2) / (weights_treated**2).sum()
-        )
-        ess_control = (
-            (weights_control.sum() ** 2) / (weights_control**2).sum()
-        )
+        ess_treated = (weights_treated.sum() ** 2) / (weights_treated**2).sum()
+        ess_control = (weights_control.sum() ** 2) / (weights_control**2).sum()
     else:
         # Unweighted sample size
         ess_treated = treated.sum()

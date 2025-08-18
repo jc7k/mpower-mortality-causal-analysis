@@ -151,12 +151,16 @@ class TestSunAbrahamEstimator:
         results = estimator.estimate("outcome")
 
         assert "cohort_effects" in results, "Results should include cohort effects"
-        assert "aggregate_effects" in results, "Results should include aggregate effects"
+        assert "aggregate_effects" in results, (
+            "Results should include aggregate effects"
+        )
 
         if results["aggregate_effects"]:
             assert "att" in results["aggregate_effects"], "ATT should be present"
             assert "se" in results["aggregate_effects"], "SE should be present"
-            assert isinstance(results["aggregate_effects"]["att"], (int, float)), "ATT should be numeric"
+            assert isinstance(results["aggregate_effects"]["att"], (int, float)), (
+                "ATT should be numeric"
+            )
 
     def test_event_study(self, sample_panel_data):
         """Test event study analysis."""
@@ -166,7 +170,9 @@ class TestSunAbrahamEstimator:
 
         event_results = estimator.event_study("outcome", horizon=3)
 
-        assert isinstance(event_results, pd.DataFrame), "Event results should be DataFrame"
+        assert isinstance(event_results, pd.DataFrame), (
+            "Event results should be DataFrame"
+        )
         assert "relative_time" in event_results.columns, "Relative time column missing"
         assert "coefficient" in event_results.columns, "Coefficient column missing"
         assert "std_error" in event_results.columns, "Std error column missing"
@@ -182,7 +188,9 @@ class TestSunAbrahamEstimator:
         assert "test_statistic" in pt_results, "Test statistic should be present"
         assert "p_value" in pt_results, "P-value should be present"
         assert "reject_parallel" in pt_results, "Reject parallel should be present"
-        assert isinstance(pt_results["reject_parallel"], bool), "Reject parallel should be boolean"
+        assert isinstance(pt_results["reject_parallel"], bool), (
+            "Reject parallel should be boolean"
+        )
 
     def test_with_covariates(self, sample_panel_data):
         """Test estimation with covariates."""
@@ -192,7 +200,9 @@ class TestSunAbrahamEstimator:
 
         results = estimator.estimate("outcome", covariates=["covariate1", "covariate2"])
 
-        assert results["covariates"] == ["covariate1", "covariate2"], "Covariates should match"
+        assert results["covariates"] == ["covariate1", "covariate2"], (
+            "Covariates should match"
+        )
 
 
 class TestBorusyakImputation:
@@ -680,7 +690,6 @@ class TestEdgeCases:
 
     def test_performance_timeout(self, sample_panel_data):
         """Test that methods complete within reasonable time."""
-
         comparison = MethodComparison(
             sample_panel_data, unit_col="unit", time_col="time", cohort_col="cohort"
         )
