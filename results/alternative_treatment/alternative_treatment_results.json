@@ -1,0 +1,202 @@
+{
+  "binary_threshold": {
+    "treatment_definition": "binary_threshold_25.0",
+    "n_treated_countries": 44,
+    "treatment_years": [
+      2009,
+      2011,
+      2013,
+      2015,
+      2017
+    ],
+    "outcomes": {
+      "mort_lung_cancer_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      },
+      "mort_cvd_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      },
+      "mort_ihd_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      },
+      "mort_copd_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      }
+    }
+  },
+  "continuous_change": {
+    "treatment_definition": "continuous_change",
+    "n_treated_countries": 63,
+    "treatment_years": [
+      2012,
+      2014,
+      2016,
+      2018
+    ],
+    "outcomes": {
+      "mort_lung_cancer_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      },
+      "mort_cvd_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      },
+      "mort_ihd_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      },
+      "mort_copd_asr": {
+        "error": "'Series' object has no attribute '_replace_columnwise'",
+        "method": "callaway_did"
+      }
+    }
+  },
+  "dose_response": {
+    "treatment_definition": "dose_response",
+    "mpower_range": [
+      9.0,
+      29.0
+    ],
+    "outcomes": {
+      "mort_lung_cancer_asr": {
+        "coefficient": -0.027439423263377588,
+        "std_error": 0.3952663248060321,
+        "p_value": 0.9446781018806545,
+        "ci_lower": -0.8021614198832004,
+        "ci_upper": 0.7472825733564453,
+        "method": "fixed_effects_ols",
+        "r_squared": 0.9936364605535108,
+        "n_obs": 771
+      },
+      "mort_cvd_asr": {
+        "coefficient": -6.792926642623014,
+        "std_error": 1.8562474407013678,
+        "p_value": 0.0002747084552948079,
+        "ci_lower": -10.431171626397695,
+        "ci_upper": -3.154681658848333,
+        "method": "fixed_effects_ols",
+        "r_squared": 0.9824988162562864,
+        "n_obs": 771
+      },
+      "mort_ihd_asr": {
+        "coefficient": -5.137230167979984,
+        "std_error": 1.3811425967197344,
+        "p_value": 0.00021808162401394277,
+        "ci_lower": -7.844269657550663,
+        "ci_upper": -2.430190678409305,
+        "method": "fixed_effects_ols",
+        "r_squared": 0.981608212889798,
+        "n_obs": 771
+      },
+      "mort_copd_asr": {
+        "coefficient": -0.4520191936728864,
+        "std_error": 0.5634395821240156,
+        "p_value": 0.4227225470405154,
+        "ci_lower": -1.556360774635957,
+        "ci_upper": 0.6523223872901842,
+        "method": "fixed_effects_ols",
+        "r_squared": 0.9905803906349372,
+        "n_obs": 771
+      }
+    }
+  },
+  "comparison_summary": {
+    "treatment_definitions": {
+      "binary_threshold": {
+        "description": "Countries with MPOWER \u2265 25.0",
+        "n_treated": 44
+      },
+      "continuous_change": {
+        "description": "Countries with \u226520.0% improvement",
+        "n_treated": 63
+      },
+      "dose_response": {
+        "description": "Continuous MPOWER score (normalized 0-1)",
+        "estimation_method": "Fixed effects OLS"
+      }
+    },
+    "outcome_comparison": {
+      "mort_lung_cancer_asr": {
+        "binary_threshold": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "continuous_change": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "dose_response": {
+          "effect": -0.027439423263377588,
+          "std_error": 0.3952663248060321,
+          "p_value": 0.9446781018806545,
+          "significant": false
+        }
+      },
+      "mort_cvd_asr": {
+        "binary_threshold": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "continuous_change": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "dose_response": {
+          "effect": -6.792926642623014,
+          "std_error": 1.8562474407013678,
+          "p_value": 0.0002747084552948079,
+          "significant": true
+        }
+      },
+      "mort_ihd_asr": {
+        "binary_threshold": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "continuous_change": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "dose_response": {
+          "effect": -5.137230167979984,
+          "std_error": 1.3811425967197344,
+          "p_value": 0.00021808162401394277,
+          "significant": true
+        }
+      },
+      "mort_copd_asr": {
+        "binary_threshold": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "continuous_change": {
+          "error": "'Series' object has no attribute '_replace_columnwise'"
+        },
+        "dose_response": {
+          "effect": -0.4520191936728864,
+          "std_error": 0.5634395821240156,
+          "p_value": 0.4227225470405154,
+          "significant": false
+        }
+      }
+    }
+  },
+  "metadata": {
+    "outcomes": [
+      "mort_lung_cancer_asr",
+      "mort_cvd_asr",
+      "mort_ihd_asr",
+      "mort_copd_asr"
+    ],
+    "control_vars": [
+      "gdp_pc_constant_log",
+      "urban_pop_pct",
+      "population_total",
+      "edu_exp_pct_gdp"
+    ],
+    "n_countries": 195,
+    "time_range": [
+      2008,
+      2018
+    ],
+    "n_observations": 1170
+  }
+}

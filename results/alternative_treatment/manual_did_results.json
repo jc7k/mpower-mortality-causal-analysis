@@ -1,0 +1,134 @@
+{
+  "binary_threshold_manual": {
+    "outcomes": {
+      "mort_lung_cancer_asr": {
+        "att": -0.5126620434683395,
+        "std_error": 0.22037018075803522,
+        "p_value": 0.019998949768250056,
+        "ci_lower": -0.9445875977540885,
+        "ci_upper": -0.08073648918259052,
+        "r_squared": 0.9937903926646137,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      },
+      "mort_cvd_asr": {
+        "att": -2.669241050140198,
+        "std_error": 1.4939076928878081,
+        "p_value": 0.07397774369244274,
+        "ci_lower": -5.5973001282003025,
+        "ci_upper": 0.2588180279199057,
+        "r_squared": 0.9825478573586558,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      },
+      "mort_ihd_asr": {
+        "att": -1.8984853445868017,
+        "std_error": 1.1326015979217008,
+        "p_value": 0.09369581790966058,
+        "ci_lower": -4.118384476513335,
+        "ci_upper": 0.3214137873397318,
+        "r_squared": 0.9816186623987919,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      },
+      "mort_copd_asr": {
+        "att": -0.2622258600459884,
+        "std_error": 0.3130642636392072,
+        "p_value": 0.4022495913285925,
+        "ci_lower": -0.8758318167788346,
+        "ci_upper": 0.3513800966868577,
+        "r_squared": 0.9906408232833658,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      }
+    }
+  },
+  "continuous_change_manual": {
+    "outcomes": {
+      "mort_lung_cancer_asr": {
+        "att": 0.5223154614834936,
+        "std_error": 0.17705564816075448,
+        "p_value": 0.003177663811987335,
+        "ci_lower": 0.17528639108841487,
+        "ci_upper": 0.8693445318785724,
+        "r_squared": 0.993828314383913,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      },
+      "mort_cvd_asr": {
+        "att": 0.7512323825327002,
+        "std_error": 1.1747375485081397,
+        "p_value": 0.5225045117147306,
+        "ci_lower": -1.5512532125432537,
+        "ci_upper": 3.053717977608654,
+        "r_squared": 0.9821228141068352,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      },
+      "mort_ihd_asr": {
+        "att": 0.3837885515198224,
+        "std_error": 0.854175151509618,
+        "p_value": 0.6532087929801574,
+        "ci_lower": -1.2903947454390288,
+        "ci_upper": 2.0579718484786738,
+        "r_squared": 0.981188851713529,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      },
+      "mort_copd_asr": {
+        "att": 0.3119802761728805,
+        "std_error": 0.35275591562401526,
+        "p_value": 0.3764758187967966,
+        "ci_lower": -0.37942131845018945,
+        "ci_upper": 1.0033818707959505,
+        "r_squared": 0.9906602388543322,
+        "n_obs": 778,
+        "method": "manual_twfe_did"
+      }
+    }
+  },
+  "dose_response_manual": {
+    "outcomes": {
+      "mort_lung_cancer_asr": {
+        "att": -0.02743976422883912,
+        "std_error": 0.5418311475172269,
+        "p_value": 0.9596102779970586,
+        "ci_lower": -1.0894288133626038,
+        "ci_upper": 1.0345492849049256,
+        "r_squared": 0.9936364605534764,
+        "n_obs": 771,
+        "method": "manual_twfe_did"
+      },
+      "mort_cvd_asr": {
+        "att": -6.792927576327938,
+        "std_error": 4.203385767569522,
+        "p_value": 0.1060811370830949,
+        "ci_lower": -15.0315636807642,
+        "ci_upper": 1.445708528108324,
+        "r_squared": 0.982498816256242,
+        "n_obs": 771,
+        "method": "manual_twfe_did"
+      },
+      "mort_ihd_asr": {
+        "att": -5.137230866161459,
+        "std_error": 3.134233877512023,
+        "p_value": 0.10119853961043244,
+        "ci_lower": -11.280329266085024,
+        "ci_upper": 1.0058675337621068,
+        "r_squared": 0.9816082128897292,
+        "n_obs": 771,
+        "method": "manual_twfe_did"
+      },
+      "mort_copd_asr": {
+        "att": -0.4520176486147217,
+        "std_error": 0.8014112868988386,
+        "p_value": 0.5727357192054603,
+        "ci_lower": -2.0227837709364453,
+        "ci_upper": 1.1187484737070017,
+        "r_squared": 0.9905803906348748,
+        "n_obs": 771,
+        "method": "manual_twfe_did"
+      }
+    }
+  }
+}

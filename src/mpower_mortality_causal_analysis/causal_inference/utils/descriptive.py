@@ -407,7 +407,8 @@ class MPOWERDescriptives:
 
         n_outcomes = len(outcomes)
         fig, axes = plt.subplots(2, 2, figsize=figsize)
-        axes = axes.flatten() if n_outcomes > 1 else [axes]
+        # Always flatten axes to ensure consistent indexing
+        axes = axes.flatten()
 
         # Create cohort labels
         cohort_labels = {}
