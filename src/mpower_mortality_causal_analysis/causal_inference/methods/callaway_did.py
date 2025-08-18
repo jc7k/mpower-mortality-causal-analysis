@@ -77,11 +77,14 @@ class CallawayDiD(CausalInferenceBase):
 
     Parameters:
         data (DataFrame): Panel data with required columns
-        cohort_col (str): Column name for treatment cohort (year of first treatment, 0 for never-treated)
+        cohort_col (str): Column name for treatment cohort
+            (year of first treatment, 0 for never-treated)
         unit_col (str): Column name for unit identifier
         time_col (str): Column name for time period
-        never_treated_value (Union[int, float]): Value indicating never-treated units (default: 0)
-        prefer_r (bool): Whether to prefer R implementation when available (default: True)
+        never_treated_value (Union[int, float]): Value indicating
+            never-treated units (default: 0)
+        prefer_r (bool): Whether to prefer R implementation when available
+            (default: True)
 
     Example:
         >>> # Basic usage
@@ -206,7 +209,8 @@ class CallawayDiD(CausalInferenceBase):
             control_group (str): Control group type
                 - 'nevertreated': Use never-treated units as controls
                 - 'notyettreated': Use not-yet-treated units as controls
-            anticipation (int): Number of periods before treatment that treatment effects might occur
+            anticipation (int): Number of periods before treatment that
+                treatment effects might occur
             base_period (str): Base period for normalizing treatment effects
             **kwargs: Additional arguments passed to the underlying estimator
 
@@ -426,10 +430,7 @@ class CallawayDiD(CausalInferenceBase):
         )
 
         # Get pre-treatment data for control group
-        control_pre_mask = control_mask.replace(
-            data_subset[self.time_col] == time_period,
-            data_subset[self.time_col] == pre_period,
-        )
+        control_pre_mask = control_mask & (data_subset[self.time_col] == pre_period)
 
         # Calculate difference-in-differences
         try:
