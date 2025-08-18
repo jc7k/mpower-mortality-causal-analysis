@@ -196,3 +196,177 @@
 - **Next Steps**: Advanced research extensions and policy optimization analysis
 
 **Technical Achievement**: Successfully implemented comprehensive synthetic control methods that address the parallel trends violations identified in the initial DiD analysis, plus complete mechanism analysis that decomposes MPOWER effects by individual policy components. This provides both robust alternative identification strategy and component-specific policy guidance, significantly enhancing the credibility of causal estimates and practical policy applications.
+
+---
+
+## 🚀 RESEARCH EXTENSIONS TASK PLAN
+
+### Overview
+Four independent research extensions designed for parallel development using git worktrees. Each extension is self-contained with no overlapping code or dependencies.
+
+### Extension A: Spillover Analysis - Cross-Country Policy Externalities
+**Branch**: `feature/spillover-analysis`
+**Module**: `src/mpower_mortality_causal_analysis/extensions/spillover/`
+
+#### Tasks:
+1. **Spatial Weight Matrix Construction** (2 days)
+   - [ ] Create `spatial_weights.py` with distance/contiguity matrices
+   - [ ] Implement border neighbor identification
+   - [ ] Add economic/cultural proximity weights
+   - [ ] Unit tests for weight matrix properties
+
+2. **Spatial Econometric Models** (3 days)
+   - [ ] Implement `spatial_models.py` with Spatial Lag Model (SAR)
+   - [ ] Add Spatial Error Model (SEM)
+   - [ ] Create Spatial Durbin Model (SDM) for direct/indirect effects
+   - [ ] Integrate with existing panel data structure
+
+3. **Network Diffusion Analysis** (2 days)
+   - [ ] Build `diffusion_analysis.py` for policy adoption networks
+   - [ ] Implement contagion models
+   - [ ] Create visualization of diffusion patterns
+   - [ ] Test network statistics
+
+4. **Border Discontinuity Design** (2 days)
+   - [ ] Develop `border_analysis.py` for neighboring country pairs
+   - [ ] Implement RDD at borders
+   - [ ] Handle geographic controls
+   - [ ] Validate with placebo borders
+
+5. **Integration & Testing** (1 day)
+   - [ ] Create `spillover_pipeline.py` orchestrating all analyses
+   - [ ] Comprehensive test suite in `tests/extensions/test_spillover.py`
+   - [ ] Documentation and example notebook
+
+### Extension B: Cost-Effectiveness Framework
+**Branch**: `feature/cost-effectiveness`
+**Module**: `src/mpower_mortality_causal_analysis/extensions/cost_effectiveness/`
+
+#### Tasks:
+1. **Health Economic Modeling** (3 days)
+   - [ ] Create `health_outcomes.py` for QALY/DALY calculations
+   - [ ] Implement Markov models for disease progression
+   - [ ] Add life table methods
+   - [ ] Unit tests for health metrics
+
+2. **Cost Estimation Module** (2 days)
+   - [ ] Build `cost_models.py` for implementation costs
+   - [ ] Add healthcare cost offset calculations
+   - [ ] Include productivity loss estimates
+   - [ ] Validate against WHO-CHOICE data
+
+3. **ICER Analysis** (2 days)
+   - [ ] Develop `icer_analysis.py` for incremental cost-effectiveness
+   - [ ] Implement probabilistic sensitivity analysis
+   - [ ] Create cost-effectiveness acceptability curves
+   - [ ] Add dominance analysis
+
+4. **Budget Optimization** (2 days)
+   - [ ] Create `budget_optimizer.py` with linear programming
+   - [ ] Implement portfolio optimization for policy mix
+   - [ ] Add constraint handling (budget, capacity)
+   - [ ] Test optimization algorithms
+
+5. **Reporting & Visualization** (1 day)
+   - [ ] Build `ce_reporting.py` for standardized outputs
+   - [ ] Create cost-effectiveness plane visualizations
+   - [ ] Generate policy briefs template
+   - [ ] Full test coverage
+
+### Extension C: Advanced DiD Methods
+**Branch**: `feature/advanced-did`
+**Module**: `src/mpower_mortality_causal_analysis/extensions/advanced_did/`
+
+#### Tasks:
+1. **Sun & Abraham (2021) Implementation** (2 days)
+   - [ ] Create `sun_abraham.py` with interaction-weighted estimator
+   - [ ] Handle cohort-specific effects
+   - [ ] Implement efficient computation
+   - [ ] Validate against published results
+
+2. **Borusyak et al. (2021) Methods** (2 days)
+   - [ ] Build `borusyak_imputation.py` for imputation approach
+   - [ ] Add pre-trend testing
+   - [ ] Implement robust standard errors
+   - [ ] Create diagnostic plots
+
+3. **de Chaisemartin & D'Haultfœuille** (2 days)
+   - [ ] Develop `dcdh_did.py` for fuzzy DiD
+   - [ ] Handle continuous treatment
+   - [ ] Add placebo estimators
+   - [ ] Test heterogeneous effects
+
+4. **Doubly Robust Estimators** (2 days)
+   - [ ] Create `doubly_robust.py` combining methods
+   - [ ] Implement propensity score adjustments
+   - [ ] Add outcome regression
+   - [ ] Cross-validation procedures
+
+5. **Comparison Framework** (2 days)
+   - [ ] Build `method_comparison.py` for systematic comparison
+   - [ ] Create diagnostic suite
+   - [ ] Generate method selection guide
+   - [ ] Comprehensive testing
+
+### Extension D: Policy Optimization
+**Branch**: `feature/policy-optimization`
+**Module**: `src/mpower_mortality_causal_analysis/extensions/optimization/`
+
+#### Tasks:
+1. **Interaction Effects Analysis** (2 days)
+   - [ ] Create `policy_interactions.py` for synergy detection
+   - [ ] Implement higher-order interaction models
+   - [ ] Add bootstrapped confidence intervals
+   - [ ] Test super/sub-additive effects
+
+2. **Sequential Implementation** (3 days)
+   - [ ] Build `sequential_optimizer.py` for timing optimization
+   - [ ] Implement dynamic programming solution
+   - [ ] Add learning/adaptation models
+   - [ ] Handle capacity constraints
+
+3. **Combinatorial Optimization** (2 days)
+   - [ ] Develop `policy_scheduler.py` for optimal ordering
+   - [ ] Implement branch-and-bound algorithms
+   - [ ] Add heuristic methods for large problems
+   - [ ] Validate with simulations
+
+4. **Political Economy Constraints** (2 days)
+   - [ ] Create `political_constraints.py` modeling feasibility
+   - [ ] Add stakeholder preference models
+   - [ ] Implement game-theoretic solutions
+   - [ ] Test robustness to assumptions
+
+5. **Decision Support System** (1 day)
+   - [ ] Build `decision_support.py` for policy recommendations
+   - [ ] Create interactive scenario tool
+   - [ ] Generate implementation roadmaps
+   - [ ] Full integration testing
+
+### Git Worktree Workflow
+```bash
+# Set up worktrees for parallel development
+git worktree add ../mpower-spillover feature/spillover-analysis
+git worktree add ../mpower-cost-effect feature/cost-effectiveness
+git worktree add ../mpower-advanced-did feature/advanced-did
+git worktree add ../mpower-optimization feature/policy-optimization
+
+# Each worktree can be developed independently
+cd ../mpower-spillover
+# Implement Extension A
+
+cd ../mpower-cost-effect
+# Implement Extension B
+```
+
+### Testing Requirements
+- Each extension must have ≥80% test coverage
+- Integration tests with main pipeline
+- Performance benchmarks for computational methods
+- Validation against published results where applicable
+
+### Documentation Standards
+- Each module requires comprehensive docstrings
+- Method papers in `docs/methods/` for each extension
+- Example notebooks in `notebooks/extensions/`
+- API documentation for public interfaces
