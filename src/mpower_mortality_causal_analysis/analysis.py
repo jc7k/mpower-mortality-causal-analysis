@@ -57,6 +57,10 @@ from mpower_mortality_causal_analysis.causal_inference.utils.descriptive import 
 from mpower_mortality_causal_analysis.causal_inference.utils.event_study import (
     EventStudyAnalysis,
 )
+from mpower_mortality_causal_analysis.causal_inference.utils.mechanism_analysis import (
+    MPOWER_COMPONENTS,
+    MPOWERMechanismAnalysis,
+)
 from mpower_mortality_causal_analysis.causal_inference.utils.robustness_comprehensive import (
     RobustnessChecks,
 )
@@ -128,6 +132,7 @@ class MPOWERAnalysisPipeline:
             "event_study": {},
             "synthetic_control": {},
             "robustness": {},
+            "mechanism_analysis": {},
             "metadata": {
                 "outcomes": self.outcomes,
                 "control_vars": self.control_vars,
@@ -498,14 +503,96 @@ class MPOWERAnalysisPipeline:
 
         return robustness_results
 
+    def run_mechanism_analysis(
+        self,
+        methods: list[str] | None = None,
+        component_cols: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Run comprehensive mechanism analysis for MPOWER components.
+
+        This analysis decomposes MPOWER effects by individual components
+        (M,P,O,W,E,R) to understand which specific policies drive mortality impacts.
+
+        Args:
+            methods: Causal inference methods to use ('callaway_did', 'synthetic_control')
+            component_cols: Mapping of component names to data columns
+
+        Returns:
+            Dict containing component-specific analysis results
+        """
+        if methods is None:
+            methods = ["callaway_did", "synthetic_control"]
+
+        print("\n" + "=" * 80)
+        print("MECHANISM ANALYSIS: MPOWER Component Decomposition")
+        print("=" * 80)
+        print("Analyzing individual MPOWER components to identify policy drivers...")
+
+        # Initialize mechanism analysis
+        mechanism = MPOWERMechanismAnalysis(
+            data=self.data,
+            unit_col=self.unit_col,
+            time_col=self.time_col,
+            component_cols=component_cols,
+            control_vars=self.control_vars,
+        )
+
+        mechanism_results = {}
+
+        # Run analysis for each outcome
+        for outcome in self.outcomes:
+            print(f"\nAnalyzing mechanism for outcome: {outcome}")
+            print("-" * 50)
+
+            try:
+                outcome_results = mechanism.run_component_analysis(
+                    outcome=outcome,
+                    methods=methods,
+                    covariates=self.control_vars,
+                )
+
+                mechanism_results[outcome] = outcome_results
+
+                # Print summary
+                summary = outcome_results.get("summary", {})
+                rankings = summary.get("policy_rankings", {})
+
+                for method, ranking_list in rankings.items():
+                    if ranking_list:
+                        print(f"\n{method.replace('_', ' ').title()} Policy Rankings:")
+                        for item in ranking_list[:3]:  # Top 3
+                            component = item["component"]
+                            effect = item["effect"]
+                            name = item["component_name"]
+                            print(
+                                f"  {item['rank']}. {component} ({name}): {effect:.3f}"
+                            )
+
+            except Exception as e:
+                print(f"Error in mechanism analysis for {outcome}: {str(e)}")
+                mechanism_results[outcome] = {
+                    "error": str(e),
+                    "outcome": outcome,
+                }
+
+        self.results["mechanism_analysis"] = mechanism_results
+
+        print(f"\nMechanism analysis completed for {len(mechanism_results)} outcomes")
+
+        return mechanism_results
+
     def run_full_analysis(
-        self, skip_robustness: bool = False, run_synthetic_control: bool = True
+        self,
+        skip_robustness: bool = False,
+        run_synthetic_control: bool = True,
+        run_mechanism_analysis: bool = True,
     ) -> dict[str, Any]:
         """Run the complete analysis pipeline.
 
         Args:
             skip_robustness (bool): Whether to skip time-intensive robustness checks
             run_synthetic_control (bool): Whether to run synthetic control analysis
+            run_mechanism_analysis (bool): Whether to run MPOWER component mechanism analysis
 
         Returns:
             Dict with all analysis results
@@ -531,13 +618,19 @@ class MPOWERAnalysisPipeline:
                     "\nSkipping synthetic control analysis (run_synthetic_control=False)"
                 )
 
-            # 6. Robustness checks (optional, can be time-intensive)
+            # 6. Mechanism analysis (MPOWER component decomposition)
+            if run_mechanism_analysis:
+                self.run_mechanism_analysis()
+            else:
+                print("\nSkipping mechanism analysis (run_mechanism_analysis=False)")
+
+            # 7. Robustness checks (optional, can be time-intensive)
             if not skip_robustness:
                 self.run_robustness_checks()
             else:
                 print("\nSkipping robustness checks (skip_robustness=True)")
 
-            # 7. Generate summary
+            # 8. Generate summary
             self._generate_analysis_summary()
 
         except Exception:
@@ -650,6 +743,14 @@ class MPOWERAnalysisPipeline:
                     writer, sheet_name="Data_Summary", index=False
                 )
 
+                # Mechanism analysis summary
+                if "mechanism_analysis" in self.results:
+                    mechanism_table = self._create_mechanism_analysis_table()
+                    if not mechanism_table.empty:
+                        mechanism_table.to_excel(
+                            writer, sheet_name="Mechanism_Analysis", index=False
+                        )
+
         except ImportError:
             pass
 
@@ -724,6 +825,88 @@ class MPOWERAnalysisPipeline:
                 )
 
         return pd.DataFrame(pt_data)
+
+    def _create_mechanism_analysis_table(self) -> DataFrame:
+        """Create summary table of mechanism analysis results."""
+        mechanism_data = []
+
+        mechanism_results = self.results.get("mechanism_analysis", {})
+
+        for outcome, outcome_results in mechanism_results.items():
+            if isinstance(outcome_results, dict) and "components" in outcome_results:
+                components = outcome_results["components"]
+
+                for component, component_results in components.items():
+                    if "treatment_summary" in component_results:
+                        ts = component_results["treatment_summary"]
+
+                        # Base row with treatment info
+                        row = {
+                            "outcome": outcome,
+                            "component": component,
+                            "component_name": MPOWER_COMPONENTS.get(component, {}).get(
+                                "name", component
+                            ),
+                            "treated_countries": ts.get("treated_countries", 0),
+                            "treatment_rate": ts.get("treatment_rate", 0),
+                        }
+
+                        # Add method results
+                        methods = component_results.get("methods", {})
+
+                        # Callaway & Sant'Anna results
+                        if "callaway_did" in methods:
+                            did_result = methods["callaway_did"]
+                            if "simple_att" in did_result:
+                                att = did_result["simple_att"]
+                                row.update(
+                                    {
+                                        "did_effect": att.get("att", np.nan),
+                                        "did_std_error": att.get("std_error", np.nan),
+                                        "did_p_value": att.get("p_value", np.nan),
+                                    }
+                                )
+
+                        # Synthetic control results
+                        if "synthetic_control" in methods:
+                            sc_result = methods["synthetic_control"]
+                            if "aggregated_effect" in sc_result:
+                                agg = sc_result["aggregated_effect"]
+                                row.update(
+                                    {
+                                        "sc_mean_effect": agg.get(
+                                            "mean_effect", np.nan
+                                        ),
+                                        "sc_median_effect": agg.get(
+                                            "median_effect", np.nan
+                                        ),
+                                        "sc_std_effect": agg.get("std_effect", np.nan),
+                                    }
+                                )
+
+                            if "match_quality" in sc_result:
+                                mq = sc_result["match_quality"]
+                                row.update(
+                                    {
+                                        "sc_mean_rmse": mq.get("mean_rmse", np.nan),
+                                    }
+                                )
+
+                            row["sc_fitted_units"] = sc_result.get("n_fitted_units", 0)
+
+                        mechanism_data.append(row)
+
+        if mechanism_data:
+            df = pd.DataFrame(mechanism_data)
+            # Sort by outcome and effect size
+            if "did_effect" in df.columns:
+                df = df.sort_values(
+                    ["outcome", "did_effect"],
+                    ascending=[True, True],
+                    na_position="last",
+                )
+            return df
+        return pd.DataFrame()
 
     def _export_coefficient_tables(self, output_path: Path) -> None:
         """Export detailed coefficient tables."""

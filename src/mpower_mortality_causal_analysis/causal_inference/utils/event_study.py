@@ -229,31 +229,33 @@ class EventStudyAnalysis:
 
             # Create fixed effects dummies and convert to float64 for consistency
             unit_dummies = pd.get_dummies(
-                data[self.unit_col], prefix="unit", drop_first=True, dtype='float64'
+                data[self.unit_col], prefix="unit", drop_first=True, dtype="float64"
             )
             time_dummies = pd.get_dummies(
-                data[self.time_col], prefix="time", drop_first=True, dtype='float64'
+                data[self.time_col], prefix="time", drop_first=True, dtype="float64"
             )
 
             # Ensure all RHS variables are float64 for consistency
-            rhs_data = data[rhs_vars].astype('float64')
+            rhs_data = data[rhs_vars].astype("float64")
 
             # Combine all variables
             X = pd.concat([rhs_data, unit_dummies, time_dummies], axis=1)
             X = sm.add_constant(X)
-            y = data[outcome].astype('float64')
+            y = data[outcome].astype("float64")
 
             # Handle missing data by dropping rows with NaN values
             # Create combined dataset for complete case analysis
             regression_data = pd.concat([y, X], axis=1)
             complete_cases = regression_data.dropna()
-            
+
             if len(complete_cases) < 0.5 * len(regression_data):
-                raise ValueError(f"Too much missing data: {len(complete_cases)}/{len(regression_data)} complete cases")
-            
+                raise ValueError(
+                    f"Too much missing data: {len(complete_cases)}/{len(regression_data)} complete cases"
+                )
+
             y = complete_cases[outcome]
             X = complete_cases.drop(outcome, axis=1)
-            
+
             # Update cluster variable if provided
             if cluster_var and cluster_var in data.columns:
                 cluster_groups = data.loc[complete_cases.index, cluster_var]

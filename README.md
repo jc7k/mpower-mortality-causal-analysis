@@ -29,7 +29,16 @@ results = pipeline.run_full_analysis(skip_robustness=True)  # Set False for full
 pipeline.export_results('results/')
 "
 
-# 2a. Alternative: Run synthetic control analysis specifically
+# 2a. Alternative: Run mechanism analysis specifically
+python -c "
+from mpower_mortality_causal_analysis.analysis import MPOWERAnalysisPipeline
+pipeline = MPOWERAnalysisPipeline('data/processed/analysis_ready_data.csv')
+mech_results = pipeline.run_mechanism_analysis()
+print(f'Mechanism analysis completed for {len(mech_results)} components')
+pipeline.export_results('results/')
+"
+
+# 2b. Alternative: Run synthetic control analysis specifically
 python -c "
 from mpower_mortality_causal_analysis.analysis import MPOWERAnalysisPipeline
 pipeline = MPOWERAnalysisPipeline('data/processed/analysis_ready_data.csv')
@@ -41,13 +50,18 @@ pipeline.export_results('results/')
 # 3. View results
 ls results/
 # - analysis_results.json: Complete results in JSON format
-# - analysis_summary.xlsx: Key findings summary
+# - analysis_summary.xlsx: Key findings summary with mechanism analysis sheet
 # - descriptive/: Visualizations and descriptive analysis
 # - event_study/: Event study plots and coefficients
+# - mechanism_analysis/: Component-specific analysis and policy rankings
 # - synthetic_control/: Synthetic control results and visualizations
 # - coefficients/: Detailed coefficient tables
 
-# 4. Alternative: Use the analysis module directly
+# 4. Run mechanism analysis demonstration
+cd src
+python demo_mechanism_analysis.py ../data/processed/analysis_ready_data.csv ../results/
+
+# 5. Alternative: Use the analysis module directly
 python -c "
 import sys; sys.path.append('.')
 from mpower_mortality_causal_analysis.analysis import MPOWERAnalysisPipeline
@@ -66,22 +80,25 @@ The complete causal inference analysis has been implemented and executed:
 - **Callaway & Sant'Anna DiD**: Modern staggered difference-in-differences with multiple backends (R/Python/fallback)
 - **Synthetic Control Methods**: Comprehensive implementation addressing parallel trends violations
 - **Event Study Analysis**: Dynamic treatment effects and parallel trends testing with fixed data type handling
+- **Mechanism Analysis**: Component-specific decomposition of MPOWER effects by individual policies (M,P,O,W,E,R)
 - **Descriptive Analysis**: MPOWER-specific visualizations and balance checks with robust plotting
 - **Robustness Checks**: Comprehensive framework including TWFE, sensitivity tests, and additional validation
 
 ### Key Technical Achievements
 - ✅ **Multiple Estimation Backends**: R's 'did' package, Python 'differences', pure Python fallback
 - ✅ **Synthetic Control Implementation**: Full MPOWERSyntheticControl with multiple treated units
+- ✅ **Mechanism Analysis**: Component-specific policy decomposition identifying which MPOWER policies drive effects
 - ✅ **Quadratic Optimization**: Advanced weight selection using scipy.optimize
 - ✅ **Robust Error Handling**: Graceful degradation when advanced packages unavailable
 - ✅ **Data Type Consistency**: Fixed critical statsmodels compatibility issues in event studies
-- ✅ **Comprehensive Testing**: 66+ unit tests covering all major analysis components
+- ✅ **Comprehensive Testing**: 70+ unit tests covering all major analysis components
 - ✅ **Production Ready**: Full error handling, logging, and result serialization
 
 ### Analysis Results Generated
 - **Descriptive Statistics**: Treatment adoption timelines, outcome trends, correlation matrices
 - **Parallel Trends Testing**: Multiple statistical tests for identifying assumption violations
 - **Main Treatment Effects**: Aggregated ATT estimates with proper statistical inference
+- **Mechanism Analysis**: Component-specific effects identifying which MPOWER policies drive mortality reductions
 - **Synthetic Control Analysis**: Optimal counterfactuals addressing parallel trends violations
 - **Event Study Plots**: Dynamic effects visualization with confidence intervals
 - **Robustness Checks**: TWFE comparison, sample sensitivity, placebo tests
@@ -89,6 +106,11 @@ The complete causal inference analysis has been implemented and executed:
 ### Key Finding: Parallel Trends Violations Addressed
 **⚠️ Critical Finding**: Parallel trends assumption appears violated across mortality outcomes in DiD analysis.
 **✅ Solution Implemented**: Comprehensive synthetic control methods provide robust alternative identification strategy.
+
+### 🎯 Policy Research Value: Mechanism Analysis
+**🔬 Research Innovation**: Component-specific analysis identifies which MPOWER policies drive mortality reductions.
+**📊 Policy Guidance**: Provides evidence-based rankings for tobacco control intervention prioritization.
+**💡 Implementation Value**: Enables targeted resource allocation and sequential policy implementation strategies.
 
 ## 📚 Table of Contents
 
@@ -134,15 +156,17 @@ descriptive_results = pipeline.run_descriptive_analysis()
 parallel_trends = pipeline.run_parallel_trends_analysis()
 callaway_results = pipeline.run_callaway_did_analysis()
 event_study_results = pipeline.run_event_study_analysis()
+mechanism_results = pipeline.run_mechanism_analysis()
 synthetic_control_results = pipeline.run_synthetic_control_analysis()
 robustness_results = pipeline.run_robustness_checks()
 ```
 
-### Callaway & Sant'Anna DiD Direct Usage
+### Advanced Analysis Components
 
 ```python
 from mpower_mortality_causal_analysis.causal_inference.methods.callaway_did import CallawayDiD
 from mpower_mortality_causal_analysis.causal_inference.methods.synthetic_control import MPOWERSyntheticControl
+from mpower_mortality_causal_analysis.causal_inference.utils.mechanism_analysis import MPOWERMechanismAnalysis
 
 # Callaway & Sant'Anna DiD estimator
 did = CallawayDiD(
@@ -153,6 +177,22 @@ did = CallawayDiD(
 )
 did.fit(outcome='lung_cancer_mortality_rate', covariates=['gdp_per_capita_log'])
 simple_att = did.aggregate('simple')     # Overall ATT
+
+# MPOWER Mechanism Analysis (which components drive effects?)
+mech = MPOWERMechanismAnalysis(data=data, unit_col='country', time_col='year')
+component_effects = mech.analyze_all_components(
+    outcome='lung_cancer_mortality_rate',
+    methods=['callaway_did', 'synthetic_control']
+)
+
+# View component rankings
+rankings = mech.rank_components(component_effects)
+print("Policy Component Rankings (by effectiveness):")
+for rank, (component, effect_size) in enumerate(rankings, 1):
+    print(f"{rank}. {component}: Effect = {effect_size:.2f}")
+
+# Generate policy prioritization report
+mech.generate_policy_report(component_effects, save_path='policy_priorities.xlsx')
 
 # MPOWER Synthetic Control (addresses parallel trends violations)
 sc = MPOWERSyntheticControl(data=data, unit_col='country', time_col='year')
@@ -188,6 +228,7 @@ src/mpower_mortality_causal_analysis/
     ├── utils/
     │   ├── descriptive.py           # MPOWER-specific descriptive analysis
     │   ├── event_study.py           # Event study analysis with robust data handling
+    │   ├── mechanism_analysis.py    # MPOWER component mechanism analysis
     │   ├── robustness.py            # Individual robustness checks
     │   └── robustness_comprehensive.py  # Comprehensive robustness framework
     └── data/
@@ -198,13 +239,15 @@ tests/
 │   ├── methods/test_callaway_did.py # DiD method testing
 │   └── data/test_preparation.py    # Data preparation testing
 ├── test_descriptive.py             # Descriptive analysis testing
-└── test_event_study.py             # Event study testing
+├── test_event_study.py             # Event study testing
+└── test_mechanism_analysis.py      # Mechanism analysis testing
 ```
 
 ### Key Components
 - **MPOWERAnalysisPipeline**: Main orchestration class in `/src/mpower_mortality_causal_analysis/analysis.py`
 - **CallawayDiD**: Core DiD implementation with multiple backends (R/Python/fallback)
 - **MPOWERSyntheticControl**: Advanced synthetic control for multiple treated units with staggered adoption
+- **MPOWERMechanismAnalysis**: Component-specific analysis identifying which MPOWER policies drive effects
 - **EventStudyAnalysis**: Dynamic treatment effects with parallel trends testing
 - **MPOWERDescriptives**: MPOWER-specific visualizations and balance checks
 - **RobustnessChecks**: Comprehensive sensitivity and robustness analysis
@@ -233,16 +276,25 @@ tests/
 - **Demographic**: Urban population percentage, total population (log)
 - **Social**: Education expenditure as % of GDP
 
+### MPOWER Component Data
+The mechanism analysis uses individual MPOWER component scores:
+- **M (Monitor)**: Tobacco use and prevention policy monitoring (0-5 scale)
+- **P (Protect)**: Protection from tobacco smoke exposure (0-5 scale)
+- **O (Offer)**: Help to quit tobacco use programs (0-5 scale)
+- **W (Warn)**: Warnings about tobacco dangers (0-4 scale)
+- **E (Enforce)**: Enforcement of advertising/promotion bans (0-5 scale)
+- **R (Raise)**: Tobacco tax policies (0-5 scale)
+
 ### Data Sources
-- **WHO MPOWER**: Tobacco control policy implementation scores
+- **WHO MPOWER**: Tobacco control policy implementation scores (total and component-specific)
 - **IHME GBD**: Global Burden of Disease mortality estimates
 - **World Bank WDI**: Economic and demographic indicators
 
 ## 🔬 Methodology
 
-### Dual Identification Strategy
+### Triple Identification Strategy
 
-The analysis employs two complementary causal identification approaches:
+The analysis employs three complementary causal identification approaches:
 
 #### 1. Callaway & Sant'Anna (2021) Staggered DiD
 
@@ -259,6 +311,14 @@ To address parallel trends violations detected in DiD analysis:
 - **Multiple Treated Units**: Handles all 44 MPOWER-adopting countries with staggered timing
 - **Quadratic Optimization**: Uses constrained optimization for optimal weight selection
 - **Robust Diagnostics**: Pre-treatment match quality and post-treatment effect estimation
+
+#### 3. Mechanism Analysis
+
+To understand which MPOWER components drive mortality effects:
+- **Component Decomposition**: Separate analysis of each MPOWER policy (M,P,O,W,E,R)
+- **Policy Rankings**: Identifies most effective tobacco control interventions
+- **Dose-Response Analysis**: Examines effects across component score levels
+- **Policy Prioritization**: Provides evidence-based guidance for resource allocation
 
 ### Key Features
 
@@ -294,6 +354,22 @@ To address parallel trends violations detected in DiD analysis:
    - Match quality metrics (RMSE, effective controls)
    - Weight distribution analysis
    - Treatment effect aggregation across units
+
+#### Mechanism Analysis Features:
+1. **Component-Specific Treatment Effects**:
+   - Individual analysis for each MPOWER component (M,P,O,W,E,R)
+   - Binary and continuous treatment definitions
+   - Cross-component interaction analysis
+
+2. **Policy Effectiveness Rankings**:
+   - Effect size comparisons across components
+   - Statistical significance testing
+   - Confidence interval-based rankings
+
+3. **Implementation Guidance**:
+   - Cost-effectiveness considerations
+   - Sequential implementation strategies
+   - Resource allocation optimization
 
 ### Implementation Backends
 
@@ -427,10 +503,11 @@ python -m pytest tests/test_event_study.py -v
 python -m pytest tests/ --cov=src/mpower_mortality_causal_analysis
 ```
 
-**Test Coverage**: 66+ unit tests covering:
+**Test Coverage**: 70+ unit tests covering:
 - Data preparation and validation
 - Callaway & Sant'Anna DiD implementation (multiple backends)
 - Synthetic control methods (MPOWERSyntheticControl with multi-unit support)
+- Mechanism analysis with component decomposition (MPOWERMechanismAnalysis)
 - Event study analysis with robust data handling
 - Descriptive statistics and visualization
 - Robustness checks and sensitivity analysis
