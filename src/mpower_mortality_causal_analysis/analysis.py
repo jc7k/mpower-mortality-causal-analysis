@@ -45,10 +45,21 @@ except ImportError:
     )
 
 # Import causal inference modules
-from .causal_inference.methods.callaway_did import CallawayDiD
-from .causal_inference.utils.descriptive import MPOWERDescriptives
-from .causal_inference.utils.event_study import EventStudyAnalysis
-from .causal_inference.utils.robustness_comprehensive import RobustnessChecks
+from mpower_mortality_causal_analysis.causal_inference.methods.callaway_did import (
+    CallawayDiD,
+)
+from mpower_mortality_causal_analysis.causal_inference.methods.synthetic_control import (
+    MPOWERSyntheticControl,
+)
+from mpower_mortality_causal_analysis.causal_inference.utils.descriptive import (
+    MPOWERDescriptives,
+)
+from mpower_mortality_causal_analysis.causal_inference.utils.event_study import (
+    EventStudyAnalysis,
+)
+from mpower_mortality_causal_analysis.causal_inference.utils.robustness_comprehensive import (
+    RobustnessChecks,
+)
 
 
 class MPOWERAnalysisPipeline:
@@ -115,6 +126,7 @@ class MPOWERAnalysisPipeline:
             "parallel_trends": {},
             "callaway_did": {},
             "event_study": {},
+            "synthetic_control": {},
             "robustness": {},
             "metadata": {
                 "outcomes": self.outcomes,
@@ -328,6 +340,105 @@ class MPOWERAnalysisPipeline:
 
         return event_study_results
 
+    def run_synthetic_control_analysis(self) -> dict[str, Any]:
+        """Run comprehensive synthetic control analysis for all treated countries.
+
+        This method addresses parallel trends violations by creating optimal
+        synthetic controls for each MPOWER-adopting country.
+
+        Returns:
+            Dict with synthetic control results for all outcomes
+        """
+        print("\n=== Running MPOWER Synthetic Control Analysis ===")
+        print("Addressing parallel trends violations with synthetic controls...")
+
+        synthetic_control_results = {}
+
+        # Extract treatment information from the data
+        treated_countries = self.data[self.data[self.treatment_col] == 1][
+            self.unit_col
+        ].unique()
+        treatment_info = {}
+
+        for country in treated_countries:
+            country_data = self.data[self.data[self.unit_col] == country]
+            first_treatment_year = country_data[country_data[self.treatment_col] == 1][
+                self.time_col
+            ].min()
+            if pd.notna(first_treatment_year):
+                treatment_info[country] = int(first_treatment_year)
+
+        print(
+            f"Found {len(treatment_info)} treated countries with valid treatment timing"
+        )
+
+        for outcome in self.outcomes:
+            print(f"\nAnalyzing {outcome}...")
+
+            try:
+                # Initialize synthetic control estimator
+                sc_estimator = MPOWERSyntheticControl(
+                    data=self.data,
+                    unit_col=self.unit_col,
+                    time_col=self.time_col,
+                )
+
+                # Fit synthetic control for all treated units
+                sc_results = sc_estimator.fit_all_units(
+                    treatment_info=treatment_info,
+                    outcome=outcome,
+                    predictors=self.control_vars,
+                    pre_periods=2,  # Minimum 2 pre-treatment periods
+                )
+
+                # Generate plots if plotting is available
+                if PLOTTING_AVAILABLE:
+                    try:
+                        plot_results = sc_estimator.plot_all_units(
+                            outcome=outcome,
+                            save_dir=f"results/synthetic_control/{outcome}",
+                        )
+                        sc_results["plot_info"] = plot_results
+                    except Exception as e:
+                        print(f"  Warning: Could not generate plots - {e}")
+
+                # Add summary information
+                sc_results["outcome"] = outcome
+                sc_results["treatment_info"] = treatment_info
+                sc_results["summary"] = sc_estimator.summary()
+
+                synthetic_control_results[outcome] = sc_results
+
+                # Print summary
+                agg = sc_results["aggregated"]
+                if (
+                    "avg_treatment_effect" in agg
+                    and agg["avg_treatment_effect"] is not None
+                ):
+                    print(
+                        f"  Average Treatment Effect: {agg['avg_treatment_effect']:.4f}"
+                    )
+                    print(
+                        f"  Successful Fits: {len(sc_results['successful_units'])}/{len(treatment_info)}"
+                    )
+                    print(
+                        f"  Average RMSE: {agg.get('match_quality', {}).get('avg_rmse', 'N/A'):.4f}"
+                    )
+                else:
+                    print("  No successful synthetic control fits")
+
+            except Exception as e:
+                print(f"  Error in synthetic control analysis: {e}")
+                synthetic_control_results[outcome] = {
+                    "error": str(e),
+                    "treatment_info": treatment_info,
+                }
+
+        self.results["synthetic_control"] = synthetic_control_results
+
+        print("\n=== Synthetic Control Analysis Complete ===")
+        return synthetic_control_results
+
     def run_robustness_checks(self) -> dict[str, Any]:
         """Run comprehensive robustness checks."""
         # Initialize comprehensive robustness checker
@@ -387,11 +498,14 @@ class MPOWERAnalysisPipeline:
 
         return robustness_results
 
-    def run_full_analysis(self, skip_robustness: bool = False) -> dict[str, Any]:
+    def run_full_analysis(
+        self, skip_robustness: bool = False, run_synthetic_control: bool = True
+    ) -> dict[str, Any]:
         """Run the complete analysis pipeline.
 
         Args:
             skip_robustness (bool): Whether to skip time-intensive robustness checks
+            run_synthetic_control (bool): Whether to run synthetic control analysis
 
         Returns:
             Dict with all analysis results
@@ -409,13 +523,21 @@ class MPOWERAnalysisPipeline:
             # 4. Event study analysis
             self.run_event_study_analysis()
 
-            # 5. Robustness checks (optional, can be time-intensive)
+            # 5. Synthetic control analysis (addresses parallel trends violations)
+            if run_synthetic_control:
+                self.run_synthetic_control_analysis()
+            else:
+                print(
+                    "\nSkipping synthetic control analysis (run_synthetic_control=False)"
+                )
+
+            # 6. Robustness checks (optional, can be time-intensive)
             if not skip_robustness:
                 self.run_robustness_checks()
             else:
-                pass
+                print("\nSkipping robustness checks (skip_robustness=True)")
 
-            # 6. Generate summary
+            # 7. Generate summary
             self._generate_analysis_summary()
 
         except Exception:
@@ -536,6 +658,7 @@ class MPOWERAnalysisPipeline:
         effects_data = []
 
         for outcome in self.outcomes:
+            # Callaway & Sant'Anna results
             if outcome in self.results.get("callaway_did", {}):
                 did_result = self.results["callaway_did"][outcome]
                 if "simple_att" in did_result and isinstance(
@@ -551,6 +674,25 @@ class MPOWERAnalysisPipeline:
                             "p_value": att.get("pvalue", np.nan),
                             "ci_lower": att.get("ci_lower", np.nan),
                             "ci_upper": att.get("ci_upper", np.nan),
+                        }
+                    )
+
+            # Synthetic control results
+            if outcome in self.results.get("synthetic_control", {}):
+                sc_result = self.results["synthetic_control"][outcome]
+                if "aggregated" in sc_result and isinstance(
+                    sc_result["aggregated"], dict
+                ):
+                    agg = sc_result["aggregated"]
+                    effects_data.append(
+                        {
+                            "outcome": outcome,
+                            "method": "Synthetic_Control",
+                            "att": agg.get("avg_treatment_effect", np.nan),
+                            "std_error": agg.get("std_treatment_effect", np.nan),
+                            "p_value": np.nan,  # Synthetic control doesn't provide p-values by default
+                            "ci_lower": np.nan,
+                            "ci_upper": np.nan,
                         }
                     )
 
@@ -615,7 +757,10 @@ class MPOWERAnalysisPipeline:
 
 # Convenience function for quick analysis
 def run_mpower_analysis(
-    data_path: str, output_dir: str = "results", skip_robustness: bool = False
+    data_path: str,
+    output_dir: str = "results",
+    skip_robustness: bool = False,
+    run_synthetic_control: bool = True,
 ) -> dict[str, Any]:
     """Convenience function to run the complete MPOWER analysis.
 
@@ -623,12 +768,15 @@ def run_mpower_analysis(
         data_path (str): Path to analysis-ready data
         output_dir (str): Directory to save results
         skip_robustness (bool): Whether to skip robustness checks
+        run_synthetic_control (bool): Whether to run synthetic control analysis
 
     Returns:
         Dict with complete analysis results
     """
     pipeline = MPOWERAnalysisPipeline(data_path)
-    results = pipeline.run_full_analysis(skip_robustness=skip_robustness)
+    results = pipeline.run_full_analysis(
+        skip_robustness=skip_robustness, run_synthetic_control=run_synthetic_control
+    )
     pipeline.export_results(output_dir)
 
     return results
