@@ -240,7 +240,7 @@ class MPOWERDescriptives:
                 # Time trend analysis
                 yearly_means = self.data.groupby(self.year_col)[mpower_var].mean()
                 mpower_analysis[mpower_var]["time_trend"] = {
-                    "correlation_with_year": yearly_means.corr(yearly_means.index),
+                    "correlation_with_year": yearly_means.corr(pd.Series(yearly_means.index, index=yearly_means.index)),
                     "yearly_means": yearly_means.to_dict(),
                 }
 
