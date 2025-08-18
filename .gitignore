@@ -67,12 +67,26 @@ tmp/
 temp/
 .tmp/
 
-# Documentation builds
+# Documentation builds (but allow manuscript and documentation files)
 docs/_build/
+docs/build/
 site/
 
-# Model outputs
+# Model outputs (keep some result summaries for reproducibility)
 models/
 outputs/
-results/
+# Allow key result summaries but exclude large intermediate files
+results/*.csv
+results/*.png
+results/*/plots/
+results/*/figures/
+# But keep key summary files
+!results/*.md
+!results/*.json
+!results/*.xlsx
+!results/**/*.md
+!results/**/*.json
+!results/**/*.xlsx
 plots/
+# Allow key plots but exclude bulk visualization outputs
+!plots/key_figures/

@@ -1,0 +1,790 @@
+{
+  "descriptive": {},
+  "parallel_trends": {},
+  "callaway_did": {
+    "mort_lung_cancer_asr": {
+      "error": "No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+    },
+    "mort_cvd_asr": {
+      "error": "No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+    },
+    "mort_ihd_asr": {
+      "error": "No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+    },
+    "mort_copd_asr": {
+      "error": "No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+    }
+  },
+  "event_study": {
+    "mort_lung_cancer_asr": {
+      "error": "[Errno 2] No such file or directory: 'results/event_study/event_study_mort_lung_cancer_asr.png'"
+    },
+    "mort_cvd_asr": {
+      "error": "[Errno 2] No such file or directory: 'results/event_study/event_study_mort_cvd_asr.png'"
+    },
+    "mort_ihd_asr": {
+      "error": "[Errno 2] No such file or directory: 'results/event_study/event_study_mort_ihd_asr.png'"
+    },
+    "mort_copd_asr": {
+      "error": "[Errno 2] No such file or directory: 'results/event_study/event_study_mort_copd_asr.png'"
+    }
+  },
+  "synthetic_control": {},
+  "robustness": {},
+  "mechanism_analysis": {
+    "mort_lung_cancer_asr": {
+      "outcome": "mort_lung_cancer_asr",
+      "methods": [
+        "callaway_did",
+        "synthetic_control"
+      ],
+      "components": {
+        "M": {
+          "component_info": {
+            "name": "Monitor",
+            "description": "Monitor tobacco use and prevention policies",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 99,
+            "total_countries": 195,
+            "treatment_rate": 0.5076923076923077,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "P": {
+          "component_info": {
+            "name": "Protect",
+            "description": "Protect from tobacco smoke",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 93,
+            "total_countries": 195,
+            "treatment_rate": 0.47692307692307695,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "O": {
+          "component_info": {
+            "name": "Offer",
+            "description": "Offer help to quit tobacco use",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 148,
+            "total_countries": 195,
+            "treatment_rate": 0.7589743589743589,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "W": {
+          "component_info": {
+            "name": "Warn",
+            "description": "Warn about the dangers of tobacco",
+            "max_score": 4,
+            "high_threshold": 3
+          },
+          "treatment_summary": {
+            "treated_countries": 152,
+            "total_countries": 195,
+            "treatment_rate": 0.7794871794871795,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "E": {
+          "component_info": {
+            "name": "Enforce",
+            "description": "Enforce bans on tobacco advertising, promotion and sponsorship",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 153,
+            "total_countries": 195,
+            "treatment_rate": 0.7846153846153846,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "R": {
+          "component_info": {
+            "name": "Raise",
+            "description": "Raise taxes on tobacco",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 123,
+            "total_countries": 195,
+            "treatment_rate": 0.6307692307692307,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        }
+      },
+      "summary": {
+        "effect_comparison": {},
+        "treatment_coverage": {
+          "M": {
+            "countries": 99,
+            "rate": 0.5076923076923077
+          },
+          "P": {
+            "countries": 93,
+            "rate": 0.47692307692307695
+          },
+          "O": {
+            "countries": 148,
+            "rate": 0.7589743589743589
+          },
+          "W": {
+            "countries": 152,
+            "rate": 0.7794871794871795
+          },
+          "E": {
+            "countries": 153,
+            "rate": 0.7846153846153846
+          },
+          "R": {
+            "countries": 123,
+            "rate": 0.6307692307692307
+          }
+        },
+        "statistical_significance": {},
+        "policy_rankings": {}
+      }
+    },
+    "mort_cvd_asr": {
+      "outcome": "mort_cvd_asr",
+      "methods": [
+        "callaway_did",
+        "synthetic_control"
+      ],
+      "components": {
+        "M": {
+          "component_info": {
+            "name": "Monitor",
+            "description": "Monitor tobacco use and prevention policies",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 99,
+            "total_countries": 195,
+            "treatment_rate": 0.5076923076923077,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "P": {
+          "component_info": {
+            "name": "Protect",
+            "description": "Protect from tobacco smoke",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 93,
+            "total_countries": 195,
+            "treatment_rate": 0.47692307692307695,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "O": {
+          "component_info": {
+            "name": "Offer",
+            "description": "Offer help to quit tobacco use",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 148,
+            "total_countries": 195,
+            "treatment_rate": 0.7589743589743589,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "W": {
+          "component_info": {
+            "name": "Warn",
+            "description": "Warn about the dangers of tobacco",
+            "max_score": 4,
+            "high_threshold": 3
+          },
+          "treatment_summary": {
+            "treated_countries": 152,
+            "total_countries": 195,
+            "treatment_rate": 0.7794871794871795,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "E": {
+          "component_info": {
+            "name": "Enforce",
+            "description": "Enforce bans on tobacco advertising, promotion and sponsorship",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 153,
+            "total_countries": 195,
+            "treatment_rate": 0.7846153846153846,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "R": {
+          "component_info": {
+            "name": "Raise",
+            "description": "Raise taxes on tobacco",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 123,
+            "total_countries": 195,
+            "treatment_rate": 0.6307692307692307,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        }
+      },
+      "summary": {
+        "effect_comparison": {},
+        "treatment_coverage": {
+          "M": {
+            "countries": 99,
+            "rate": 0.5076923076923077
+          },
+          "P": {
+            "countries": 93,
+            "rate": 0.47692307692307695
+          },
+          "O": {
+            "countries": 148,
+            "rate": 0.7589743589743589
+          },
+          "W": {
+            "countries": 152,
+            "rate": 0.7794871794871795
+          },
+          "E": {
+            "countries": 153,
+            "rate": 0.7846153846153846
+          },
+          "R": {
+            "countries": 123,
+            "rate": 0.6307692307692307
+          }
+        },
+        "statistical_significance": {},
+        "policy_rankings": {}
+      }
+    },
+    "mort_ihd_asr": {
+      "outcome": "mort_ihd_asr",
+      "methods": [
+        "callaway_did",
+        "synthetic_control"
+      ],
+      "components": {
+        "M": {
+          "component_info": {
+            "name": "Monitor",
+            "description": "Monitor tobacco use and prevention policies",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 99,
+            "total_countries": 195,
+            "treatment_rate": 0.5076923076923077,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "P": {
+          "component_info": {
+            "name": "Protect",
+            "description": "Protect from tobacco smoke",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 93,
+            "total_countries": 195,
+            "treatment_rate": 0.47692307692307695,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "O": {
+          "component_info": {
+            "name": "Offer",
+            "description": "Offer help to quit tobacco use",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 148,
+            "total_countries": 195,
+            "treatment_rate": 0.7589743589743589,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "W": {
+          "component_info": {
+            "name": "Warn",
+            "description": "Warn about the dangers of tobacco",
+            "max_score": 4,
+            "high_threshold": 3
+          },
+          "treatment_summary": {
+            "treated_countries": 152,
+            "total_countries": 195,
+            "treatment_rate": 0.7794871794871795,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "E": {
+          "component_info": {
+            "name": "Enforce",
+            "description": "Enforce bans on tobacco advertising, promotion and sponsorship",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 153,
+            "total_countries": 195,
+            "treatment_rate": 0.7846153846153846,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "R": {
+          "component_info": {
+            "name": "Raise",
+            "description": "Raise taxes on tobacco",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 123,
+            "total_countries": 195,
+            "treatment_rate": 0.6307692307692307,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        }
+      },
+      "summary": {
+        "effect_comparison": {},
+        "treatment_coverage": {
+          "M": {
+            "countries": 99,
+            "rate": 0.5076923076923077
+          },
+          "P": {
+            "countries": 93,
+            "rate": 0.47692307692307695
+          },
+          "O": {
+            "countries": 148,
+            "rate": 0.7589743589743589
+          },
+          "W": {
+            "countries": 152,
+            "rate": 0.7794871794871795
+          },
+          "E": {
+            "countries": 153,
+            "rate": 0.7846153846153846
+          },
+          "R": {
+            "countries": 123,
+            "rate": 0.6307692307692307
+          }
+        },
+        "statistical_significance": {},
+        "policy_rankings": {}
+      }
+    },
+    "mort_copd_asr": {
+      "outcome": "mort_copd_asr",
+      "methods": [
+        "callaway_did",
+        "synthetic_control"
+      ],
+      "components": {
+        "M": {
+          "component_info": {
+            "name": "Monitor",
+            "description": "Monitor tobacco use and prevention policies",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 99,
+            "total_countries": 195,
+            "treatment_rate": 0.5076923076923077,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "P": {
+          "component_info": {
+            "name": "Protect",
+            "description": "Protect from tobacco smoke",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 93,
+            "total_countries": 195,
+            "treatment_rate": 0.47692307692307695,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "O": {
+          "component_info": {
+            "name": "Offer",
+            "description": "Offer help to quit tobacco use",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 148,
+            "total_countries": 195,
+            "treatment_rate": 0.7589743589743589,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "W": {
+          "component_info": {
+            "name": "Warn",
+            "description": "Warn about the dangers of tobacco",
+            "max_score": 4,
+            "high_threshold": 3
+          },
+          "treatment_summary": {
+            "treated_countries": 152,
+            "total_countries": 195,
+            "treatment_rate": 0.7794871794871795,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "E": {
+          "component_info": {
+            "name": "Enforce",
+            "description": "Enforce bans on tobacco advertising, promotion and sponsorship",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 153,
+            "total_countries": 195,
+            "treatment_rate": 0.7846153846153846,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        },
+        "R": {
+          "component_info": {
+            "name": "Raise",
+            "description": "Raise taxes on tobacco",
+            "max_score": 5,
+            "high_threshold": 4
+          },
+          "treatment_summary": {
+            "treated_countries": 123,
+            "total_countries": 195,
+            "treatment_rate": 0.6307692307692307,
+            "treatment_years": [],
+            "first_treatment_year": null,
+            "last_treatment_year": null
+          },
+          "methods": {
+            "callaway_did": {
+              "error": "Callaway DiD failed: No never-treated units found. Callaway & Sant'Anna requires either never-treated or late-treated units for identification."
+            },
+            "synthetic_control": {
+              "error": "No treated units found for synthetic control"
+            }
+          }
+        }
+      },
+      "summary": {
+        "effect_comparison": {},
+        "treatment_coverage": {
+          "M": {
+            "countries": 99,
+            "rate": 0.5076923076923077
+          },
+          "P": {
+            "countries": 93,
+            "rate": 0.47692307692307695
+          },
+          "O": {
+            "countries": 148,
+            "rate": 0.7589743589743589
+          },
+          "W": {
+            "countries": 152,
+            "rate": 0.7794871794871795
+          },
+          "E": {
+            "countries": 153,
+            "rate": 0.7846153846153846
+          },
+          "R": {
+            "countries": 123,
+            "rate": 0.6307692307692307
+          }
+        },
+        "statistical_significance": {},
+        "policy_rankings": {}
+      }
+    }
+  },
+  "metadata": {
+    "outcomes": [
+      "mort_lung_cancer_asr",
+      "mort_cvd_asr",
+      "mort_ihd_asr",
+      "mort_copd_asr"
+    ],
+    "control_vars": [
+      "gdp_log",
+      "urban_pop_pct"
+    ],
+    "n_countries": 195,
+    "time_range": [
+      "2008",
+      "2018"
+    ],
+    "n_observations": 1170
+  }
+}
