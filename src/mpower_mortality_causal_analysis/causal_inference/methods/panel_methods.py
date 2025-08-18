@@ -19,7 +19,9 @@ try:
     PYFIXEST_AVAILABLE = True
 except ImportError:
     PYFIXEST_AVAILABLE = False
-    warnings.warn("pyfixest not available. Some functionality will be limited.")
+    warnings.warn(
+        "pyfixest not available. Some functionality will be limited.", stacklevel=2
+    )
 
 try:
     from linearmodels import FirstDifferenceOLS, PanelOLS, PooledOLS, RandomEffects
@@ -28,7 +30,9 @@ try:
     LINEARMODELS_AVAILABLE = True
 except ImportError:
     LINEARMODELS_AVAILABLE = False
-    warnings.warn("linearmodels not available. Some functionality will be limited.")
+    warnings.warn(
+        "linearmodels not available. Some functionality will be limited.", stacklevel=2
+    )
 
 from ..utils.base import CausalInferenceBase
 
@@ -249,10 +253,7 @@ class PanelFixedEffects(CausalInferenceBase):
             dependent = data_copy[outcome]
 
             # Prepare exogenous variables
-            if covariates:
-                exog = data_copy[covariates]
-            else:
-                exog = None
+            exog = data_copy[covariates] if covariates else None
 
             # Choose model based on method
             if method == "pooled":
@@ -324,7 +325,7 @@ class PanelFixedEffects(CausalInferenceBase):
             return str(self._fitted_model.summary)
         # Fallback summary
         results = self._results
-        summary = f"""
+        return f"""
 Panel Fixed Effects Results ({self.backend})
 ==========================================
 Formula: {results.get("formula", "N/A")}
@@ -338,7 +339,6 @@ Panel Structure:
   Time periods: {self._panel_info["n_periods"]}
   Balanced: {self._panel_info["is_balanced"]}
 """
-        return summary
 
     def get_coefficients(self) -> pd.DataFrame:
         """Get coefficient table with standard errors and p-values.
@@ -403,14 +403,15 @@ Panel Structure:
                 self._fitted_model, "predict"
             ):
                 # For linearmodels, need to format data properly
-                data_indexed = data.set_index([self.unit_col, self.time_col])
+                data.set_index([self.unit_col, self.time_col])
                 return self._fitted_model.predict()
             warnings.warn(
-                "Prediction not implemented for this backend/model combination"
+                "Prediction not implemented for this backend/model combination",
+                stacklevel=2,
             )
             return pd.Series(index=data.index, dtype=float)
         except Exception as e:
-            warnings.warn(f"Prediction failed: {e}")
+            warnings.warn(f"Prediction failed: {e}", stacklevel=2)
             return pd.Series(index=data.index, dtype=float)
 
     def residuals(self) -> pd.Series:
@@ -427,10 +428,13 @@ Panel Structure:
                 return self._fitted_model.resid()
             if self.backend == "linearmodels" and hasattr(self._fitted_model, "resids"):
                 return self._fitted_model.resids
-            warnings.warn("Residuals not available for this backend/model combination")
+            warnings.warn(
+                "Residuals not available for this backend/model combination",
+                stacklevel=2,
+            )
             return pd.Series(dtype=float)
         except Exception as e:
-            warnings.warn(f"Failed to get residuals: {e}")
+            warnings.warn(f"Failed to get residuals: {e}", stacklevel=2)
             return pd.Series(dtype=float)
 
     def fit_multiple_outcomes(

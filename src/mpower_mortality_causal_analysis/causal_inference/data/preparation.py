@@ -76,20 +76,24 @@ class MPOWERDataPrep:
         duplicates = self.data.duplicated(subset=[self.country_col, self.year_col])
         if duplicates.any():
             n_duplicates = duplicates.sum()
-            warnings.warn(f"Found {n_duplicates} duplicate country-year combinations")
+            warnings.warn(
+                f"Found {n_duplicates} duplicate country-year combinations",
+                stacklevel=2,
+            )
 
         # Check year range
         years = self.data[self.year_col].unique()
         year_range = [years.min(), years.max()]
         if year_range[1] - year_range[0] < 5:
             warnings.warn(
-                f"Short time series: {year_range[1] - year_range[0] + 1} years"
+                f"Short time series: {year_range[1] - year_range[0] + 1} years",
+                stacklevel=2,
             )
 
         # Check country coverage
         countries = self.data[self.country_col].unique()
         if len(countries) < 10:
-            warnings.warn(f"Few countries in dataset: {len(countries)}")
+            warnings.warn(f"Few countries in dataset: {len(countries)}", stacklevel=2)
 
     def create_treatment_cohorts(
         self,
@@ -175,7 +179,7 @@ class MPOWERDataPrep:
             consecutive_count = 0
             treatment_year = None
 
-            for i, (year, is_high, idx) in enumerate(
+            for _i, (year, is_high, _idx) in enumerate(
                 zip(country_years, high_periods, country_indices, strict=False)
             ):
                 if is_high:
@@ -326,7 +330,8 @@ class MPOWERDataPrep:
         dropped_countries = len(data[self.country_col].unique()) - len(valid_countries)
         if dropped_countries > 0:
             warnings.warn(
-                f"Dropped {dropped_countries} countries with insufficient data"
+                f"Dropped {dropped_countries} countries with insufficient data",
+                stacklevel=2,
             )
 
         return filtered_data

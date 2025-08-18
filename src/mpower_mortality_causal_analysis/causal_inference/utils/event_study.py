@@ -21,7 +21,8 @@ try:
 except ImportError:
     PLOTTING_AVAILABLE = False
     warnings.warn(
-        "Plotting packages not available. Install matplotlib and seaborn for plotting."
+        "Plotting packages not available. Install matplotlib and seaborn for plotting.",
+        stacklevel=2,
     )
 
 
@@ -365,7 +366,7 @@ class EventStudyAnalysis:
         confidence_intervals = []
 
         # Calculate critical value for confidence intervals
-        alpha = 1 - confidence_level
+        1 - confidence_level
         z_score = 1.96  # Approximate for large samples
 
         # Process each event time
@@ -470,10 +471,13 @@ class EventStudyAnalysis:
         """
         coeffs = results["event_time_coefficients"]
         pvals = results["event_time_pvalues"]
+        ses = results["event_time_std_errors"]
 
         # Extract pre-treatment coefficients and p-values
         pre_treatment_pvals = []
         pre_treatment_coeffs = []
+        pre_treatment_ses = []
+        pre_treatment_vars = []
 
         for var_name, pval in pvals.items():
             if "lead_" in var_name:
@@ -481,6 +485,8 @@ class EventStudyAnalysis:
                 if lead_num <= max_lead:
                     pre_treatment_pvals.append(pval)
                     pre_treatment_coeffs.append(coeffs[var_name])
+                    pre_treatment_ses.append(ses[var_name])
+                    pre_treatment_vars.append(var_name)
 
         if not pre_treatment_pvals:
             return {
@@ -491,26 +497,420 @@ class EventStudyAnalysis:
         # Individual significance test
         significant_pre_treatment = sum(p < alpha for p in pre_treatment_pvals)
 
-        # Joint F-test (simplified version)
-        # In practice, you'd want to use the actual F-statistic from the regression
-        joint_test_pval = min(pre_treatment_pvals) * len(
-            pre_treatment_pvals
-        )  # Bonferroni correction
-        joint_test_significant = joint_test_pval < alpha
+        # Joint F-test using the actual model
+        joint_f_pval = self._conduct_joint_f_test(results, pre_treatment_vars)
+
+        # Linear trend test
+        trend_test_results = self._test_linear_pre_trend(
+            pre_treatment_coeffs, pre_treatment_ses
+        )
 
         return {
             "n_pre_treatment_periods": len(pre_treatment_pvals),
             "significant_individual_tests": significant_pre_treatment,
             "individual_test_rate": significant_pre_treatment
             / len(pre_treatment_pvals),
-            "joint_test_pvalue": joint_test_pval,
-            "joint_test_significant": joint_test_significant,
-            "conclusion": "Parallel trends violated"
-            if joint_test_significant
-            else "Parallel trends supported",
-            "pre_treatment_coefficients": pre_treatment_coeffs,
-            "pre_treatment_pvalues": pre_treatment_pvals,
+            "joint_f_test_pvalue": joint_f_pval,
+            "joint_f_test_significant": joint_f_pval < alpha
+            if joint_f_pval is not None
+            else None,
+            "linear_trend_test": trend_test_results,
+            "conclusion": self._interpret_parallel_trends_tests(
+                joint_f_pval, trend_test_results, alpha
+            ),
+            "pre_treatment_coefficients": dict(
+                zip(pre_treatment_vars, pre_treatment_coeffs, strict=False)
+            ),
+            "pre_treatment_pvalues": dict(
+                zip(pre_treatment_vars, pre_treatment_pvals, strict=False)
+            ),
+            "pre_treatment_std_errors": dict(
+                zip(pre_treatment_vars, pre_treatment_ses, strict=False)
+            ),
         }
+
+    def _conduct_joint_f_test(
+        self, results: dict[str, Any], pre_treatment_vars: list[str]
+    ) -> float | None:
+        """Conduct joint F-test for pre-treatment coefficients."""
+        try:
+            model = results.get("model")
+            if model is None:
+                return None
+
+            # Create restriction matrix for joint test
+            param_names = model.params.index.tolist()
+
+            # Find indices of pre-treatment variables in the model
+            restriction_indices = []
+            for var in pre_treatment_vars:
+                if var in param_names:
+                    restriction_indices.append(param_names.index(var))
+
+            if not restriction_indices:
+                return None
+
+            # Create restriction matrix (R) where R @ beta = 0
+            n_params = len(param_names)
+            n_restrictions = len(restriction_indices)
+            R = np.zeros((n_restrictions, n_params))
+
+            for i, idx in enumerate(restriction_indices):
+                R[i, idx] = 1
+
+            # Conduct F-test
+            from scipy import stats
+
+            # Calculate F-statistic
+            beta = model.params.values
+            cov_matrix = model.cov_params().values
+
+            # F = (R @ beta)' @ (R @ cov @ R')^(-1) @ (R @ beta) / n_restrictions
+            R_beta = R @ beta
+            R_cov_R = R @ cov_matrix @ R.T
+
+            try:
+                R_cov_R_inv = np.linalg.inv(R_cov_R)
+                f_stat = (R_beta.T @ R_cov_R_inv @ R_beta) / n_restrictions
+
+                # Calculate p-value
+                df_num = n_restrictions
+                df_denom = model.df_resid
+                return 1 - stats.f.cdf(f_stat, df_num, df_denom)
+
+            except np.linalg.LinAlgError:
+                # Singular matrix, fall back to individual tests
+                return None
+
+        except Exception:
+            return None
+
+    def _test_linear_pre_trend(
+        self, coeffs: list[float], ses: list[float]
+    ) -> dict[str, Any]:
+        """Test for linear pre-treatment trend."""
+        if len(coeffs) < 3:
+            return {
+                "test": "insufficient_data",
+                "pvalue": None,
+                "significant": None,
+                "trend_coefficient": None,
+            }
+
+        try:
+            # Create event time indices (negative for pre-treatment)
+            event_times = np.array(range(-len(coeffs), 0))
+            coeffs_array = np.array(coeffs)
+            weights = 1 / (np.array(ses) ** 2)  # Inverse variance weighting
+
+            # Weighted linear regression: coeff = alpha + beta * event_time
+            X = np.column_stack([np.ones(len(event_times)), event_times])
+            W = np.diag(weights)
+
+            # Weighted least squares: (X'WX)^(-1) X'Wy
+            XtWX = X.T @ W @ X
+            XtWy = X.T @ W @ coeffs_array
+
+            try:
+                beta_hat = np.linalg.solve(XtWX, XtWy)
+                trend_coeff = beta_hat[1]  # Slope coefficient
+
+                # Calculate standard error of trend coefficient
+                cov_matrix = np.linalg.inv(XtWX)
+                trend_se = np.sqrt(cov_matrix[1, 1])
+
+                # T-test for trend coefficient
+                t_stat = trend_coeff / trend_se
+
+                # Two-tailed p-value
+                from scipy import stats
+
+                df = len(coeffs) - 2
+                p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df))
+
+                return {
+                    "test": "linear_trend",
+                    "trend_coefficient": trend_coeff,
+                    "trend_std_error": trend_se,
+                    "t_statistic": t_stat,
+                    "pvalue": p_value,
+                    "significant": p_value < 0.05,
+                    "interpretation": "Significant linear pre-trend"
+                    if p_value < 0.05
+                    else "No significant linear pre-trend",
+                }
+
+            except np.linalg.LinAlgError:
+                return {
+                    "test": "linear_trend",
+                    "pvalue": None,
+                    "significant": None,
+                    "error": "Singular matrix in trend test",
+                }
+
+        except Exception as e:
+            return {
+                "test": "linear_trend",
+                "pvalue": None,
+                "significant": None,
+                "error": str(e),
+            }
+
+    def _interpret_parallel_trends_tests(
+        self, joint_f_pval: float | None, trend_test: dict[str, Any], alpha: float
+    ) -> str:
+        """Interpret the results of parallel trends tests."""
+        conclusions = []
+
+        # Joint F-test interpretation
+        if joint_f_pval is not None:
+            if joint_f_pval < alpha:
+                conclusions.append("Joint F-test rejects parallel trends")
+            else:
+                conclusions.append("Joint F-test supports parallel trends")
+
+        # Linear trend test interpretation
+        if trend_test.get("pvalue") is not None:
+            if trend_test["significant"]:
+                conclusions.append("Significant linear pre-trend detected")
+            else:
+                conclusions.append("No significant linear pre-trend")
+
+        # Overall conclusion
+        if not conclusions:
+            return "Insufficient data for parallel trends testing"
+
+        # If any test suggests violation, conclude violation
+        violations = any("rejects" in c or "Significant" in c for c in conclusions)
+
+        if violations:
+            overall = "Parallel trends assumption likely violated"
+        else:
+            overall = "Parallel trends assumption supported"
+
+        return f"{overall}. Details: {'; '.join(conclusions)}"
+
+    def comprehensive_parallel_trends_analysis(
+        self,
+        outcome: str,
+        max_lead: int = 4,
+        covariates: list[str] | None = None,
+        alpha: float = 0.05,
+    ) -> dict[str, Any]:
+        """Conduct comprehensive parallel trends analysis.
+
+        Args:
+            outcome (str): Outcome variable
+            max_lead (int): Maximum pre-treatment periods to test
+            covariates (List[str], optional): Control variables
+            alpha (float): Significance level
+
+        Returns:
+            Dict with comprehensive parallel trends analysis
+        """
+        # Estimate event study
+        results = self.estimate(
+            outcome=outcome,
+            covariates=covariates,
+            max_lead=max_lead,
+            max_lag=5,
+            method="fixed_effects",
+            cluster_var=self.unit_col,
+        )
+
+        # Conduct parallel trends tests
+        pt_tests = self.test_parallel_trends(results, max_lead=max_lead, alpha=alpha)
+
+        # Visual inspection data
+        visual_data = self._prepare_visual_inspection_data(outcome, max_lead)
+
+        # Placebo test suggestions
+        placebo_suggestions = self._suggest_placebo_tests()
+
+        return {
+            "event_study_results": results,
+            "parallel_trends_tests": pt_tests,
+            "visual_inspection_data": visual_data,
+            "placebo_test_suggestions": placebo_suggestions,
+            "overall_assessment": self._overall_parallel_trends_assessment(
+                pt_tests, alpha
+            ),
+        }
+
+    def _prepare_visual_inspection_data(
+        self, outcome: str, max_lead: int
+    ) -> dict[str, Any]:
+        """Prepare data for visual inspection of parallel trends."""
+        # Calculate outcome means by treatment cohort and time
+        cohort_time_means = []
+
+        cohorts = sorted(self.data[self.treatment_col].unique())
+        years = sorted(self.data[self.time_col].unique())
+
+        for cohort in cohorts:
+            cohort_data = self.data[self.data[self.treatment_col] == cohort]
+            yearly_means = cohort_data.groupby(self.time_col)[outcome].mean()
+
+            cohort_info = {
+                "cohort": cohort,
+                "is_treated": cohort != self.never_treated_value,
+                "treatment_year": cohort
+                if cohort != self.never_treated_value
+                else None,
+                "yearly_means": yearly_means.to_dict(),
+                "years": yearly_means.index.tolist(),
+            }
+            cohort_time_means.append(cohort_info)
+
+        return {
+            "cohort_time_means": cohort_time_means,
+            "outcome_variable": outcome,
+            "time_range": [min(years), max(years)],
+            "n_cohorts": len(cohorts),
+            "suggestion": "Plot these trends to visually inspect parallel pre-treatment trends",
+        }
+
+    def _suggest_placebo_tests(self) -> dict[str, Any]:
+        """Suggest placebo tests for robustness."""
+        # Find treatment years
+        treatment_years = sorted(
+            [
+                year
+                for year in self.data[self.treatment_col].unique()
+                if year != self.never_treated_value
+            ]
+        )
+
+        if not treatment_years:
+            return {"placebo_tests": [], "message": "No treatment years found"}
+
+        # Suggest artificial treatment dates
+        time_range = self.data[self.time_col].unique()
+        min_year, _max_year = min(time_range), max(time_range)
+
+        suggestions = []
+
+        # Pre-treatment placebo tests
+        for t_year in treatment_years:
+            # Suggest 2-3 years before actual treatment
+            for offset in [2, 3]:
+                placebo_year = t_year - offset
+                if placebo_year >= min_year:
+                    suggestions.append(
+                        {
+                            "type": "pre_treatment_placebo",
+                            "original_treatment_year": t_year,
+                            "placebo_treatment_year": placebo_year,
+                            "description": f"Test artificial treatment in {placebo_year} for cohort actually treated in {t_year}",
+                        }
+                    )
+
+        # Never-treated placebo test
+        mid_year = int(np.median(time_range))
+        suggestions.append(
+            {
+                "type": "never_treated_placebo",
+                "placebo_treatment_year": mid_year,
+                "description": f"Randomly assign never-treated units artificial treatment in {mid_year}",
+            }
+        )
+
+        return {
+            "placebo_tests": suggestions,
+            "recommendation": "Conduct these placebo tests to validate the identification strategy",
+        }
+
+    def _overall_parallel_trends_assessment(
+        self, pt_tests: dict[str, Any], alpha: float
+    ) -> dict[str, Any]:
+        """Provide overall assessment of parallel trends assumption."""
+        # Count evidence for/against parallel trends
+        evidence_against = 0
+        evidence_for = 0
+        total_tests = 0
+
+        # Individual test evidence
+        individual_rate = pt_tests.get("individual_test_rate", 0)
+        if individual_rate > 0.2:  # More than 20% significant
+            evidence_against += 1
+        else:
+            evidence_for += 1
+        total_tests += 1
+
+        # Joint F-test evidence
+        joint_pval = pt_tests.get("joint_f_test_pvalue")
+        if joint_pval is not None:
+            if joint_pval < alpha:
+                evidence_against += 1
+            else:
+                evidence_for += 1
+            total_tests += 1
+
+        # Linear trend test evidence
+        trend_test = pt_tests.get("linear_trend_test", {})
+        trend_sig = trend_test.get("significant")
+        if trend_sig is not None:
+            if trend_sig:
+                evidence_against += 1
+            else:
+                evidence_for += 1
+            total_tests += 1
+
+        # Overall assessment
+        if total_tests == 0:
+            assessment = "insufficient_data"
+            confidence = "none"
+        elif evidence_against == 0:
+            assessment = "strong_support"
+            confidence = "high"
+        elif evidence_against < evidence_for:
+            assessment = "weak_support"
+            confidence = "medium"
+        elif evidence_against == evidence_for:
+            assessment = "mixed_evidence"
+            confidence = "low"
+        else:
+            assessment = "violation_likely"
+            confidence = "medium" if evidence_against > evidence_for else "high"
+
+        return {
+            "assessment": assessment,
+            "confidence": confidence,
+            "evidence_for": evidence_for,
+            "evidence_against": evidence_against,
+            "total_tests": total_tests,
+            "recommendation": self._get_assessment_recommendation(assessment),
+        }
+
+    def _get_assessment_recommendation(self, assessment: str) -> str:
+        """Get recommendation based on parallel trends assessment."""
+        recommendations = {
+            "strong_support": (
+                "Parallel trends assumption is well-supported. "
+                "Proceed with DiD analysis but consider robustness checks."
+            ),
+            "weak_support": (
+                "Parallel trends assumption has some support but consider: "
+                "1) Adding more control variables, 2) Restricting sample, "
+                "3) Alternative identification strategies."
+            ),
+            "mixed_evidence": (
+                "Mixed evidence on parallel trends. Consider: "
+                "1) Investigating which cohorts/periods drive violations, "
+                "2) Matching methods, 3) Synthetic controls, 4) Alternative designs."
+            ),
+            "violation_likely": (
+                "Parallel trends assumption likely violated. Consider: "
+                "1) Alternative research designs, 2) Matching on observables, "
+                "3) Synthetic control methods, 4) Instrumental variables."
+            ),
+            "insufficient_data": (
+                "Insufficient data for reliable parallel trends testing. "
+                "Consider expanding the time series or alternative methods."
+            ),
+        }
+
+        return recommendations.get(assessment, "Unknown assessment category.")
 
     def summary_statistics(self) -> DataFrame:
         """Generate summary statistics for the event study setup.

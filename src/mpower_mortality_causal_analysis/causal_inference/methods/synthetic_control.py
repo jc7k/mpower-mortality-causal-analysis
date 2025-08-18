@@ -20,7 +20,8 @@ except ImportError:
     PYSYNCON_AVAILABLE = False
     warnings.warn(
         "The 'pysyncon' package is not available. "
-        "Synthetic control functionality will be limited."
+        "Synthetic control functionality will be limited.",
+        stacklevel=2,
     )
 
 from ..utils.base import CausalInferenceBase
@@ -111,7 +112,8 @@ class SyntheticControl(CausalInferenceBase):
         if treated_pre_periods < 2:
             warnings.warn(
                 f"Only {treated_pre_periods} pre-treatment periods for treated unit. "
-                "More periods recommended for reliable synthetic control."
+                "More periods recommended for reliable synthetic control.",
+                stacklevel=2,
             )
 
         # Check for sufficient control units
@@ -122,7 +124,8 @@ class SyntheticControl(CausalInferenceBase):
         if len(self.control_units) < 2:
             warnings.warn(
                 f"Only {len(self.control_units)} control units available. "
-                "More units recommended for reliable synthetic control."
+                "More units recommended for reliable synthetic control.",
+                stacklevel=2,
             )
 
         # Check for missing data in key units/periods
@@ -178,7 +181,7 @@ class SyntheticControl(CausalInferenceBase):
                     outcome, predictors, predictors_op, method, **kwargs
                 )
             except Exception as e:
-                warnings.warn(f"Failed to fit with pysyncon: {e}")
+                warnings.warn(f"Failed to fit with pysyncon: {e}", stacklevel=2)
                 self._fitted_model = self._fit_fallback(outcome, predictors)
         else:
             self._fitted_model = self._fit_fallback(outcome, predictors)
@@ -210,7 +213,9 @@ class SyntheticControl(CausalInferenceBase):
         else:
             # For other methods, would need to import different classes
             # from pysyncon (RobustSynth, AugSynth, PenSynth)
-            warnings.warn(f"Method '{method}' not implemented, using standard")
+            warnings.warn(
+                f"Method '{method}' not implemented, using standard", stacklevel=2
+            )
             synth = Synth(
                 data=synth_data,
                 unit=self.unit_col,
@@ -249,7 +254,8 @@ class SyntheticControl(CausalInferenceBase):
         """Fallback implementation when pysyncon is not available."""
         warnings.warn(
             "Using basic synthetic control fallback. "
-            "For full functionality, install pysyncon: pip install pysyncon"
+            "For full functionality, install pysyncon: pip install pysyncon",
+            stacklevel=2,
         )
 
         # Simple synthetic control using linear regression
@@ -370,7 +376,7 @@ Top 5 Control Unit Weights:
                 pass
 
         # Fallback plotting
-        warnings.warn("Using basic plotting functionality")
+        warnings.warn("Using basic plotting functionality", stacklevel=2)
 
         # Create simple before/after plot
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -429,7 +435,7 @@ Top 5 Control Unit Weights:
         if PYSYNCON_AVAILABLE and hasattr(self._fitted_model, "summary"):
             try:
                 # Extract treatment effects from pysyncon results
-                results = self._fitted_model.summary()
+                self._fitted_model.summary()
                 # This would depend on the actual structure of pysyncon results
                 return {
                     "treatment_effect": "To be implemented based on pysyncon output"

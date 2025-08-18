@@ -223,7 +223,7 @@ class CausalInferenceBase(ABC):
         elif format == "csv":
             # Convert results to DataFrame if possible
             if isinstance(results, dict) and any(
-                isinstance(v, (list, np.ndarray)) for v in results.values()
+                isinstance(v, list | np.ndarray) for v in results.values()
             ):
                 df = pd.DataFrame(results)
                 df.to_csv(filepath, index=False)
@@ -234,7 +234,7 @@ class CausalInferenceBase(ABC):
 
         elif format == "excel":
             if isinstance(results, dict) and any(
-                isinstance(v, (list, np.ndarray)) for v in results.values()
+                isinstance(v, list | np.ndarray) for v in results.values()
             ):
                 df = pd.DataFrame(results)
                 df.to_excel(filepath, index=False)

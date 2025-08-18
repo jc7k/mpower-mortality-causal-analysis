@@ -21,7 +21,8 @@ try:
 except ImportError:
     PLOTTING_AVAILABLE = False
     warnings.warn(
-        "Plotting packages not available. Install matplotlib and seaborn for plotting."
+        "Plotting packages not available. Install matplotlib and seaborn for plotting.",
+        stacklevel=2,
     )
 
 
@@ -394,7 +395,7 @@ class RobustnessTests:
         # Permutation tests
         permutation_effects = []
 
-        for i in range(n_permutations):
+        for _i in range(n_permutations):
             try:
                 # Create permuted data
                 permuted_data = self.data.copy()
@@ -524,7 +525,7 @@ class RobustnessTests:
             unit_effects = []
             unit_changes = []
 
-            for unit, unit_result in results["by_unit"].items():
+            for _unit, unit_result in results["by_unit"].items():
                 if "error" not in unit_result and unit_result["effect"] is not None:
                     unit_effects.append(unit_result["effect"])
                     if unit_result["effect_change"] is not None:
@@ -546,7 +547,7 @@ class RobustnessTests:
             period_effects = []
             period_changes = []
 
-            for period, period_result in results["by_period"].items():
+            for _period, period_result in results["by_period"].items():
                 if "error" not in period_result and period_result["effect"] is not None:
                     period_effects.append(period_result["effect"])
                     if period_result["effect_change"] is not None:
@@ -596,7 +597,7 @@ class RobustnessTests:
             effects = []
 
         if not effects:
-            warnings.warn("No effects to plot")
+            warnings.warn("No effects to plot", stacklevel=2)
             return None
 
         # Create plot
