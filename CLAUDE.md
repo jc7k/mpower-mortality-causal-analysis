@@ -1,7 +1,7 @@
 ### 🔄 Project Awareness & Context
 - **Always check with `Serena` MCP and @README.md** at the start of a new conversation to understand the project's architecture, goals, style, and constraints.
 - **Use consistent naming conventions, file structure, and architecture patterns** as described in `PLANNING.md`.
-- **Use .venv** (the virtual environment) whenever executing Python commands, including for unit tests.
+- **Use `uv` for dependency management** and virtual environment handling. Execute Python commands via `.venv/bin/python` for consistency.
 
 ### 🧱 Code Structure & Modularity
 - **Never create a file longer than 500 lines of code.** If a file approaches this limit, refactor by splitting it into modules or helper files.
@@ -14,6 +14,17 @@
 - **Use clear, consistent imports** (prefer relative imports within packages).
 - **Use python_dotenv and load_env()** for environment variables.
 
+### 📦 Package Management & Environment
+- **Use `uv` for all dependency operations** instead of traditional pip/venv:
+  - **Install dependencies**: `uv sync` (installs all dependencies from pyproject.toml)
+  - **Add new packages**: `uv add package-name` (automatically updates pyproject.toml)
+  - **Remove packages**: `uv remove package-name`
+  - **Run commands in venv**: `uv run python script.py` or directly use `.venv/bin/python`
+- **Virtual environment**: Automatically managed by `uv` in `.venv/` directory
+- **Python version**: Specified in pyproject.toml (`requires-python = ">=3.11"`), enforced by `uv`
+- **Dependency groups**: Use `uv sync --group dev` for development dependencies
+- **Lock file**: `uv.lock` ensures reproducible environments (commit to version control)
+
 ### 🧪 Testing & Reliability
 - **Always create Pytest unit tests for new features** (functions, classes, routes, etc).
 - **After updating any logic**, check whether existing unit tests need to be updated. If so, do it.
@@ -22,6 +33,9 @@
     - 1 test for expected use
     - 1 edge case
     - 1 failure case
+- **Run tests using uv**: `uv run pytest` or `uv run python -m pytest tests/`
+- **Test coverage**: Use `uv run pytest --cov=src --cov-report=html` for coverage reports
+- **Linting**: Run `uv run ruff check src/` and `uv run black --check src/` before commits
 
 ### ✅ Task Completion
 - **Mark completed tasks in `TASK.md`** immediately after finishing them.
@@ -345,18 +359,20 @@ Four independent research extensions designed for parallel development using git
 
 ### Git Worktree Workflow
 ```bash
-# Set up worktrees for parallel development
+# Set up worktrees for parallel development using uv
 git worktree add ../mpower-spillover feature/spillover-analysis
 git worktree add ../mpower-cost-effect feature/cost-effectiveness
 git worktree add ../mpower-advanced-did feature/advanced-did
 git worktree add ../mpower-optimization feature/policy-optimization
 
-# Each worktree can be developed independently
+# Each worktree automatically inherits the same uv.lock and virtual environment setup
 cd ../mpower-spillover
-# Implement Extension A
+uv sync  # Install dependencies in this worktree's .venv
+# Implement Extension A using: uv run python script.py or .venv/bin/python
 
 cd ../mpower-cost-effect
-# Implement Extension B
+uv sync  # Install dependencies in this worktree's .venv
+# Implement Extension B using: uv run python script.py or .venv/bin/python
 ```
 
 ### Testing Requirements
