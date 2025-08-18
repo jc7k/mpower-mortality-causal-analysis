@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 Cole Medin
+Copyright (c) 2025 MPOWER Mortality Causal Analysis Project Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,45 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Data Attribution
+
+This project analyzes publicly available data from:
+
+- **WHO MPOWER**: World Health Organization tobacco control policy data
+  Source: https://www.who.int/data/gho
+
+- **IHME GBD**: Institute for Health Metrics and Evaluation Global Burden of Disease Study
+  Source: http://www.healthdata.org/gbd
+
+- **World Bank WDI**: World Development Indicators
+  Source: https://databank.worldbank.org/source/world-development-indicators
+
+Users of this software should cite the original data sources appropriately in any
+publications or presentations resulting from this analysis.
+
+## Academic Use
+
+This software was developed for academic research purposes studying the causal impact
+of WHO MPOWER tobacco control policies on mortality outcomes using modern econometric
+methods including Callaway & Sant'Anna (2021) staggered difference-in-differences.
+
+If you use this code or methodology in your research, please consider citing:
+
+```
+MPOWER Mortality Causal Analysis (2025)
+Causal inference analysis of WHO MPOWER tobacco control policies' impact on mortality outcomes
+GitHub: https://github.com/jc7k/mpower-mortality-causal-analysis
+```
+
+## Methodology Attribution
+
+This project implements methods from:
+
+- Callaway, B., & Sant'Anna, P. H. (2021). Difference-in-differences with multiple time periods.
+  Journal of Econometrics, 225(2), 200-230.
+
+- Athey, S., & Imbens, G. W. (2017). The econometrics of randomized experiments.
+  Handbook of Economic Field Experiments, 1, 73-140.
