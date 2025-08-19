@@ -221,9 +221,11 @@ Where ATT(g,t) is the average treatment effect for countries first treated in pe
 4. **Parallel Trends**: Pre-treatment trend analysis and placebo tests
 
 **Statistical Inference**:
-- **Standard Errors**: Clustered at country level for within-country correlation
-- **Multiple Testing**: Bonferroni adjustment for multiple outcomes
+- **Standard Errors**: Clustered at country level to account for within-country correlation
+- **Multiple Testing**: Consider Bonferroni adjustment for testing four mortality outcomes
+- **Effect Size Interpretation**: Acknowledge modest individual effects with substantial population impact
 - **Confidence Intervals**: 95% CIs for policy-relevant effect interpretation
+- **Biological Plausibility**: Verify effects align with established tobacco control → health pathways
 
 ---
 
@@ -233,12 +235,14 @@ Where ATT(g,t) is the average treatment effect for countries first treated in pe
 
 #### 3.1.1 Primary Mortality Effects (Binary Threshold Analysis)
 
-Our causal analysis reveals significant mortality reductions from comprehensive MPOWER implementation:
+Our causal analysis reveals statistically significant mortality reductions from comprehensive MPOWER implementation:
 
 **Lung Cancer Mortality** (Primary Outcome):
-- **Effect Size**: -0.51 deaths per 100,000 population (95% CI: -0.94, -0.08)
-- **Statistical Significance**: p = 0.020
-- **Policy Translation**: For a country of 50 million, this represents ~255 lung cancer deaths prevented annually
+- **Effect Size**: -0.51 deaths per 100,000 population annually (95% CI: -0.94, -0.08)
+- **Statistical Significance**: p = 0.020 (significant at α = 0.05 level)
+- **Effect Interpretation**: While individually modest, this represents substantial population impact
+- **Policy Translation**: For a country of 50 million, this scales to ~255 lung cancer deaths prevented annually
+- **Biological Plausibility**: Consistent with established causal pathways from tobacco control to reduced smoking to lower cancer incidence
 
 **Cardiovascular Mortality**:
 - **Effect Size**: -2.67 deaths per 100,000 (95% CI: -5.60, +0.26)
@@ -415,11 +419,23 @@ Our findings reveal a troubling pattern: **countries systematically under-implem
 
 ### 4.3 Study Limitations: What We Cannot (Yet) Answer
 
-#### 4.3.1 Individual Component Identification
+#### 4.3.1 Causal Inference Considerations
 
-**Primary Limitation**: High adoption rates (80-93%) create identification challenges for individual component causal effects. Most countries implement multiple components simultaneously, limiting our ability to isolate which specific policies drive observed mortality reductions.
+**Observational Design**: While our natural experiment approach strengthens causal inference beyond simple correlation, several limitations require acknowledgment:
 
-**Implication**: Our component-specific findings rely on combining adoption patterns with literature evidence rather than pure causal identification. This provides valuable feasibility insights but requires larger samples or natural experiments for definitive component effectiveness rankings.
+**Statistical Power and Effect Size**:
+- **Modest Effect Size**: Our primary finding (-0.51 deaths per 100,000) may appear small but represents meaningful population health impact
+- **Precision**: Standard error of 0.22 provides reasonable precision, but confidence intervals remain relatively wide
+- **Multiple Testing**: Analysis of four outcomes increases risk of false positives; findings require replication
+
+**Identification Challenges**:
+- **High Adoption Rates**: Component-level identification limited by 80-93% adoption rates across policies
+- **Simultaneity**: Countries often implement multiple MPOWER components together, limiting ability to isolate individual policy effects
+- **Selection Bias**: Countries adopting MPOWER may differ systematically from non-adopters in unobserved ways
+
+**Biological Plausibility vs. Temporal Constraints**:
+- **Latency Periods**: Lung cancer typically develops over decades; 11-year follow-up may primarily capture early mortality effects
+- **Causal Pathways**: Effects operate through reduced smoking → lower disease incidence → reduced mortality; intermediate steps not directly measured
 
 #### 4.3.2 Temporal and Geographic Constraints
 
@@ -579,12 +595,11 @@ World Health Organization. (2021). *WHO MPOWER database*. Geneva: World Health O
 ---
 
 **Corresponding Author**: Jeff Chen, Independent Researcher
-Email: jeffreyc1@alumni.cmu.edu
 LinkedIn: https://www.linkedin.com/in/jeffchen/
 
 **AI Research Collaboration**: This research was conducted in collaboration with Claude Code (Anthropic) as AI research collaborator, providing advanced analytical support and methodological guidance.
 
-**Data Availability**: Analysis code and documentation available at: https://github.com/jc7k/mpower-mortality-caui corrsal-analysis
+**Data Availability**: Analysis code and documentation available at: https://github.com/jc7k/mpower-mortality-causal-analysis
 
 **Funding**: No external funding received. This research was conducted independently.
 
