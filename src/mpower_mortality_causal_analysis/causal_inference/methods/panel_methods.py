@@ -25,7 +25,7 @@ except ImportError:
 
 try:
     from linearmodels import FirstDifferenceOLS, PanelOLS, PooledOLS, RandomEffects
-    from linearmodels.panel.data import PanelData
+    # from linearmodels.panel.data import PanelData  # unused
 
     LINEARMODELS_AVAILABLE = True
 except ImportError:
@@ -402,9 +402,9 @@ Panel Structure:
             if self.backend == "linearmodels" and hasattr(
                 self._fitted_model, "predict"
             ):
-                # For linearmodels, need to format data properly
-                data.set_index([self.unit_col, self.time_col])
-                return self._fitted_model.predict()
+                # For linearmodels, ensure MultiIndex and pass through
+                data_indexed = data.set_index([self.unit_col, self.time_col])
+                return self._fitted_model.predict(data=data_indexed)
             warnings.warn(
                 "Prediction not implemented for this backend/model combination",
                 stacklevel=2,
