@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2025-08-27
+
+### Fixed
+- Correct p-value calculations in Callaway & Sant'Anna aggregation (use normal CDF across simple/group/calendar/event).
+- Pass properly indexed data to `linearmodels` predict in panel methods to avoid misalignment.
+
+### Improved
+- Standardized logging across core modules (analysis, synthetic_control, mechanism_analysis); removed prints.
+- Ensure plot directories exist before saving figures (descriptives and analysis paths).
+- Vectorized group-wise forward/backward fill in data preparation for better performance.
+- Harden JSON export for results and avoid unsafe `isinstance` unions.
+
+### Cleanups
+- Replaced bare `except:` with `except Exception` in core utilities and spillover pipeline.
+- Removed unused imports/variables; clarified ambiguous names in spillover utilities.
+
+### CI
+- Scoped ruff lint/format to `src/**` to avoid noise from examples/scripts.
+
+### Docs
+- Added AGENTS.md contributor guidelines.
+- Added CODE_REVIEW.md with identified issues and suggested patches.
+
 ## [2.0.0] - 2025-01-18
 
 ### 🚀 Major Research Extensions Added
