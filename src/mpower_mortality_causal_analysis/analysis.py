@@ -23,6 +23,7 @@ Usage:
     pipeline.export_results('results/', format='comprehensive')
 """
 
+import logging
 import warnings
 
 from pathlib import Path
@@ -145,6 +146,10 @@ class MPOWERAnalysisPipeline:
             },
         }
 
+    def _log(self, message: str) -> None:
+        """Log an info message."""
+        logging.getLogger(__name__).info(message)
+
     def _load_and_validate_data(self) -> DataFrame:
         """Load and validate the analysis dataset."""
         # Load data
@@ -185,27 +190,40 @@ class MPOWERAnalysisPipeline:
         # Outcome trends
         outcome_trends = {}
         for outcome in self.outcomes:
+            from pathlib import Path
+
+            save_path = (
+                f"results/descriptive/trends_{outcome}.png"
+                if PLOTTING_AVAILABLE
+                else None
+            )
+            if save_path:
+                Path(save_path).parent.mkdir(parents=True, exist_ok=True)
             trends = descriptives.plot_outcome_trends_by_cohort(
                 outcomes=[outcome],
-                save_path=f"results/descriptive/trends_{outcome}.png"
-                if PLOTTING_AVAILABLE
-                else None,
+                save_path=save_path,
             )
             outcome_trends[outcome] = trends
 
         # Treatment balance
-        balance_results = descriptives.plot_treatment_balance_check(
-            save_path="results/descriptive/treatment_balance.png"
-            if PLOTTING_AVAILABLE
-            else None,
+        save_path = (
+            "results/descriptive/treatment_balance.png" if PLOTTING_AVAILABLE else None
         )
+        if save_path:
+            Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        balance_results = descriptives.plot_treatment_balance_check(save_path=save_path)
 
         # Correlation analysis
+        save_path = (
+            "results/descriptive/correlation_heatmap.png"
+            if PLOTTING_AVAILABLE
+            else None
+        )
+        if save_path:
+            Path(save_path).parent.mkdir(parents=True, exist_ok=True)
         correlation_results = descriptives.plot_correlation_heatmap(
             variables=self.outcomes + self.control_vars + [self.treatment_col],
-            save_path="results/descriptive/correlation_heatmap.png"
-            if PLOTTING_AVAILABLE
-            else None,
+            save_path=save_path,
         )
 
         self.results["descriptive"] = {
@@ -238,8 +256,7 @@ class MPOWERAnalysisPipeline:
 
             parallel_trends_results[outcome] = pt_analysis
 
-            # Print summary
-            pt_analysis["overall_assessment"]
+            # Consider logging assessment if needed.
 
         self.results["parallel_trends"] = parallel_trends_results
 
@@ -269,9 +286,11 @@ class MPOWERAnalysisPipeline:
 
                 # Event study plot
                 if PLOTTING_AVAILABLE:
-                    did_estimator.plot_event_study(
-                        save_path=f"results/callaway_did/event_study_{outcome}.png"
-                    )
+                    from pathlib import Path
+
+                    save_path = f"results/callaway_did/event_study_{outcome}.png"
+                    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+                    did_estimator.plot_event_study(save_path=save_path)
 
                 callaway_results[outcome] = {
                     "simple_att": simple_att,
@@ -280,11 +299,7 @@ class MPOWERAnalysisPipeline:
                     "model_summary": did_estimator.summary(),
                 }
 
-                # Print key results
-                if isinstance(simple_att, dict) and "att" in simple_att:
-                    simple_att["att"]
-                    simple_att.get("se", "N/A")
-                    simple_att.get("pvalue", "N/A")
+                # Optionally log key results here.
 
             except Exception as e:
                 callaway_results[outcome] = {"error": str(e)}
@@ -319,24 +334,15 @@ class MPOWERAnalysisPipeline:
 
                 # Plot results
                 if PLOTTING_AVAILABLE:
-                    event_study.plot_event_study(
-                        results,
-                        save_path=f"results/event_study/event_study_{outcome}.png",
-                    )
+                    from pathlib import Path
+
+                    save_path = f"results/event_study/event_study_{outcome}.png"
+                    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+                    event_study.plot_event_study(results, save_path=save_path)
 
                 event_study_results[outcome] = results
 
-                # Print summary
-                sum(
-                    1
-                    for var, pval in results["event_time_pvalues"].items()
-                    if "lead_" in var and pval < 0.05
-                )
-                sum(
-                    1
-                    for var, pval in results["event_time_pvalues"].items()
-                    if "lag_" in var and pval < 0.05
-                )
+                # Optionally compute summary counts for logging.
 
             except Exception as e:
                 event_study_results[outcome] = {"error": str(e)}
@@ -354,8 +360,8 @@ class MPOWERAnalysisPipeline:
         Returns:
             Dict with synthetic control results for all outcomes
         """
-        print("\n=== Running MPOWER Synthetic Control Analysis ===")
-        print("Addressing parallel trends violations with synthetic controls...")
+        self._log("\n=== Running MPOWER Synthetic Control Analysis ===")
+        self._log("Addressing parallel trends violations with synthetic controls...")
 
         synthetic_control_results = {}
 
@@ -373,12 +379,12 @@ class MPOWERAnalysisPipeline:
             if pd.notna(first_treatment_year):
                 treatment_info[country] = int(first_treatment_year)
 
-        print(
-            f"Found {len(treatment_info)} treated countries with valid treatment timing"
-        )
+            self._log(
+                f"Found {len(treatment_info)} treated countries with valid treatment timing"
+            )
 
         for outcome in self.outcomes:
-            print(f"\nAnalyzing {outcome}...")
+            self._log(f"\nAnalyzing {outcome}...")
 
             try:
                 # Initialize synthetic control estimator
@@ -405,7 +411,7 @@ class MPOWERAnalysisPipeline:
                         )
                         sc_results["plot_info"] = plot_results
                     except Exception as e:
-                        print(f"  Warning: Could not generate plots - {e}")
+                        self._log(f"  Warning: Could not generate plots - {e}")
 
                 # Add summary information
                 sc_results["outcome"] = outcome
@@ -420,20 +426,20 @@ class MPOWERAnalysisPipeline:
                     "avg_treatment_effect" in agg
                     and agg["avg_treatment_effect"] is not None
                 ):
-                    print(
+                    self._log(
                         f"  Average Treatment Effect: {agg['avg_treatment_effect']:.4f}"
                     )
-                    print(
+                    self._log(
                         f"  Successful Fits: {len(sc_results['successful_units'])}/{len(treatment_info)}"
                     )
-                    print(
+                    self._log(
                         f"  Average RMSE: {agg.get('match_quality', {}).get('avg_rmse', 'N/A'):.4f}"
                     )
                 else:
-                    print("  No successful synthetic control fits")
+                    self._log("  No successful synthetic control fits")
 
             except Exception as e:
-                print(f"  Error in synthetic control analysis: {e}")
+                self._log(f"  Error in synthetic control analysis: {e}")
                 synthetic_control_results[outcome] = {
                     "error": str(e),
                     "treatment_info": treatment_info,
@@ -441,7 +447,7 @@ class MPOWERAnalysisPipeline:
 
         self.results["synthetic_control"] = synthetic_control_results
 
-        print("\n=== Synthetic Control Analysis Complete ===")
+        self._log("\n=== Synthetic Control Analysis Complete ===")
         return synthetic_control_results
 
     def run_robustness_checks(self) -> dict[str, Any]:
@@ -523,10 +529,12 @@ class MPOWERAnalysisPipeline:
         if methods is None:
             methods = ["callaway_did", "synthetic_control"]
 
-        print("\n" + "=" * 80)
-        print("MECHANISM ANALYSIS: MPOWER Component Decomposition")
-        print("=" * 80)
-        print("Analyzing individual MPOWER components to identify policy drivers...")
+        self._log("\n" + "=" * 80)
+        self._log("MECHANISM ANALYSIS: MPOWER Component Decomposition")
+        self._log("=" * 80)
+        self._log(
+            "Analyzing individual MPOWER components to identify policy drivers..."
+        )
 
         # Initialize mechanism analysis
         mechanism = MPOWERMechanismAnalysis(
@@ -541,8 +549,8 @@ class MPOWERAnalysisPipeline:
 
         # Run analysis for each outcome
         for outcome in self.outcomes:
-            print(f"\nAnalyzing mechanism for outcome: {outcome}")
-            print("-" * 50)
+            self._log(f"\nAnalyzing mechanism for outcome: {outcome}")
+            self._log("-" * 50)
 
             try:
                 outcome_results = mechanism.run_component_analysis(
@@ -559,17 +567,19 @@ class MPOWERAnalysisPipeline:
 
                 for method, ranking_list in rankings.items():
                     if ranking_list:
-                        print(f"\n{method.replace('_', ' ').title()} Policy Rankings:")
+                        self._log(
+                            f"\n{method.replace('_', ' ').title()} Policy Rankings:"
+                        )
                         for item in ranking_list[:3]:  # Top 3
                             component = item["component"]
                             effect = item["effect"]
                             name = item["component_name"]
-                            print(
+                            self._log(
                                 f"  {item['rank']}. {component} ({name}): {effect:.3f}"
                             )
 
             except Exception as e:
-                print(f"Error in mechanism analysis for {outcome}: {str(e)}")
+                self._log(f"Error in mechanism analysis for {outcome}: {str(e)}")
                 mechanism_results[outcome] = {
                     "error": str(e),
                     "outcome": outcome,
@@ -577,7 +587,9 @@ class MPOWERAnalysisPipeline:
 
         self.results["mechanism_analysis"] = mechanism_results
 
-        print(f"\nMechanism analysis completed for {len(mechanism_results)} outcomes")
+        self._log(
+            f"\nMechanism analysis completed for {len(mechanism_results)} outcomes"
+        )
 
         return mechanism_results
 
@@ -614,7 +626,7 @@ class MPOWERAnalysisPipeline:
             if run_synthetic_control:
                 self.run_synthetic_control_analysis()
             else:
-                print(
+                self._log(
                     "\nSkipping synthetic control analysis (run_synthetic_control=False)"
                 )
 
@@ -622,13 +634,15 @@ class MPOWERAnalysisPipeline:
             if run_mechanism_analysis:
                 self.run_mechanism_analysis()
             else:
-                print("\nSkipping mechanism analysis (run_mechanism_analysis=False)")
+                self._log(
+                    "\nSkipping mechanism analysis (run_mechanism_analysis=False)"
+                )
 
             # 7. Robustness checks (optional, can be time-intensive)
             if not skip_robustness:
                 self.run_robustness_checks()
             else:
-                print("\nSkipping robustness checks (skip_robustness=True)")
+                self._log("\nSkipping robustness checks (skip_robustness=True)")
 
             # 8. Generate summary
             self._generate_analysis_summary()
@@ -710,7 +724,7 @@ class MPOWERAnalysisPipeline:
             cleaned = {}
             for k, v in obj.items():
                 # Skip non-serializable objects like fitted models
-                if isinstance(v, pd.DataFrame | plt.Figure) or k in [
+                if isinstance(v, (pd.DataFrame, plt.Figure)) or k in [
                     "model",
                     "fitted_model",
                     "synth_model",
@@ -718,9 +732,9 @@ class MPOWERAnalysisPipeline:
                     continue
                 cleaned[k] = self._clean_results_for_json(v)
             return cleaned
-        if isinstance(obj, list | tuple):
+        if isinstance(obj, (list, tuple)):
             return [self._clean_results_for_json(item) for item in obj]
-        if isinstance(obj, np.integer | np.floating | np.ndarray):
+        if isinstance(obj, (np.integer, np.floating, np.ndarray)):
             return obj.tolist() if hasattr(obj, "tolist") else float(obj)
         return obj
 

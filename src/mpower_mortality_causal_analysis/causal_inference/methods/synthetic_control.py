@@ -243,7 +243,7 @@ class SyntheticControl(CausalInferenceBase):
         # Extract weights
         try:
             self._weights = synth.summary()
-        except:
+        except Exception:
             self._weights = None
 
         return synth
@@ -260,9 +260,6 @@ class SyntheticControl(CausalInferenceBase):
 
         # Simple synthetic control using linear regression
         try:
-            from sklearn.linear_model import LinearRegression
-            from sklearn.preprocessing import StandardScaler
-
             # Prepare pre-treatment data
             pre_data = self._prepared_data[
                 self._prepared_data[self.time_col] < self.treatment_time
@@ -327,7 +324,7 @@ class SyntheticControl(CausalInferenceBase):
         if PYSYNCON_AVAILABLE and hasattr(self._fitted_model, "summary"):
             try:
                 return str(self._fitted_model.summary())
-            except:
+            except Exception:
                 pass
 
         # Fallback summary
@@ -372,7 +369,7 @@ Top 5 Control Unit Weights:
         if PYSYNCON_AVAILABLE and hasattr(self._fitted_model, "plot"):
             try:
                 return self._fitted_model.plot()
-            except:
+            except Exception:
                 pass
 
         # Fallback plotting
@@ -440,7 +437,7 @@ Top 5 Control Unit Weights:
                 return {
                     "treatment_effect": "To be implemented based on pysyncon output"
                 }
-            except:
+            except Exception:
                 pass
 
         # Fallback calculation
@@ -715,9 +712,11 @@ class MPOWERSyntheticControl(CausalInferenceBase):
 
         # Fit each treated unit separately
         for treated_unit, treatment_time in treatment_info.items():
-            print(
-                f"Fitting synthetic control for {treated_unit} (treatment: {treatment_time})"
-            )
+            import logging
+
+            _logger = logging.getLogger(__name__)
+            _msg = f"Fitting synthetic control for {treated_unit} (treatment: {treatment_time})"
+            _logger.info(_msg)
 
             result = self.fit_single_unit(
                 treated_unit=treated_unit,
@@ -734,7 +733,11 @@ class MPOWERSyntheticControl(CausalInferenceBase):
                 successful_units.append(treated_unit)
             else:
                 failed_units.append(treated_unit)
-                print(f"  Failed: {result.get('error', 'Unknown error')}")
+                import logging
+
+                _logger = logging.getLogger(__name__)
+                _msg = f"  Failed: {result.get('error', 'Unknown error')}"
+                _logger.info(_msg)
 
         # Calculate aggregated results
         aggregated = self._aggregate_results(unit_results, successful_units, outcome)
@@ -748,9 +751,15 @@ class MPOWERSyntheticControl(CausalInferenceBase):
             "predictors": predictors,
         }
 
-        print("\nSynthetic control fitting complete:")
-        print(f"  Successful: {len(successful_units)}/{len(treatment_info)} units")
-        print(f"  Failed: {len(failed_units)} units")
+        import logging
+
+        logger = logging.getLogger(__name__)
+        msg1 = "\nSynthetic control fitting complete:"
+        msg2 = f"  Successful: {len(successful_units)}/{len(treatment_info)} units"
+        msg3 = f"  Failed: {len(failed_units)} units"
+        logger.info(msg1)
+        logger.info(msg2)
+        logger.info(msg3)
 
         return self._aggregated_results
 

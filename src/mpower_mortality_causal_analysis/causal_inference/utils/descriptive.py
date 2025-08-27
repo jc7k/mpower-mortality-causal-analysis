@@ -381,6 +381,9 @@ class MPOWERDescriptives:
         plt.tight_layout()
 
         if save_path:
+            import os
+
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig
@@ -464,6 +467,9 @@ class MPOWERDescriptives:
         plt.tight_layout()
 
         if save_path:
+            import os
+
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig
@@ -528,6 +534,9 @@ class MPOWERDescriptives:
         plt.tight_layout()
 
         if save_path:
+            import os
+
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig
@@ -588,6 +597,9 @@ class MPOWERDescriptives:
         plt.tight_layout()
 
         if save_path:
+            import os
+
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig
@@ -670,6 +682,9 @@ class MPOWERDescriptives:
         plt.tight_layout()
 
         if save_path:
+            import os
+
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
 
         return fig

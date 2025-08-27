@@ -18,6 +18,7 @@ This analysis enables:
 4. Dose-response relationships within components
 """
 
+import logging
 import warnings
 
 from pathlib import Path
@@ -28,7 +29,6 @@ import pandas as pd
 
 try:
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
     PLOTTING_AVAILABLE = True
 except ImportError:
@@ -190,9 +190,8 @@ class MPOWERMechanismAnalysis:
             col_name = f"mpower_{component.lower()}_score"
             if col_name not in self.data.columns:
                 self.component_cols[component] = col_name
-
-                # Simulate realistic component scores
-                scores = []
+                # Simulate realistic component scores per-row to preserve index alignment
+                simulated = pd.Series(index=self.data.index, dtype=float)
                 for country in countries:
                     country_data = self.data[self.data[self.unit_col] == country].copy()
 
@@ -213,17 +212,17 @@ class MPOWERMechanismAnalysis:
 
                             country_scores.append(base_score)
 
-                        # Match to actual data
-                        for _, row in country_data.iterrows():
+                        # Match to actual data using row index to preserve alignment
+                        for idx, row in country_data.iterrows():
                             year_idx = years.index(row[self.time_col])
-                            scores.append(country_scores[year_idx])
+                            simulated.loc[idx] = country_scores[year_idx]
 
                 # Add to data
-                self.data[col_name] = scores[: len(self.data)]
+                self.data[col_name] = simulated
 
-        print(
-            f"Created simulated MPOWER component data for: {list(self.component_cols.keys())}"
-        )
+        _logger = logging.getLogger(__name__)
+        _msg = f"Created simulated MPOWER component data for: {list(self.component_cols.keys())}"
+        _logger.info(_msg)
 
     def _create_component_treatments(self) -> None:
         """Create binary treatment indicators for each component."""
@@ -315,9 +314,9 @@ class MPOWERMechanismAnalysis:
 
         # Analyze each component separately
         for component in self.component_cols.keys():
-            print(
-                f"Analyzing component {component} ({MPOWER_COMPONENTS[component]['name']})..."
-            )
+            _logger = logging.getLogger(__name__)
+            _msg = f"Analyzing component {component} ({MPOWER_COMPONENTS[component]['name']})..."
+            _logger.info(_msg)
 
             component_results = self._analyze_single_component(
                 component=component,
@@ -615,7 +614,9 @@ class MPOWERMechanismAnalysis:
     ) -> None:
         """Create comprehensive visualization of mechanism analysis results."""
         if not PLOTTING_AVAILABLE:
-            print("Plotting not available. Skipping visualization.")
+            _logger = logging.getLogger(__name__)
+            _msg = "Plotting not available. Skipping visualization."
+            _logger.info(_msg)
             return
 
         # Create figure with subplots
@@ -642,7 +643,9 @@ class MPOWERMechanismAnalysis:
 
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
-            print(f"Mechanism analysis visualization saved to: {save_path}")
+            _logger = logging.getLogger(__name__)
+            _msg = f"Mechanism analysis visualization saved to: {save_path}"
+            _logger.info(_msg)
         else:
             plt.show()
 
@@ -774,7 +777,7 @@ class MPOWERMechanismAnalysis:
         valid_pvalues = [p for p in p_values if not np.isnan(p)]
 
         if valid_components:
-            bars = ax.bar(valid_components, valid_pvalues, color=colors, alpha=0.7)
+            _ = ax.bar(valid_components, valid_pvalues, color=colors, alpha=0.7)
             ax.set_ylabel("P-value")
             ax.set_title("Statistical Significance (Lower = More Significant)")
             ax.axhline(
@@ -820,7 +823,7 @@ class MPOWERMechanismAnalysis:
         effects = [abs(item["effect"]) for item in method_rankings]
         names = [item["component_name"] for item in method_rankings]
 
-        bars = ax.barh(components, effects, alpha=0.7, color="steelblue")
+        _ = ax.barh(components, effects, alpha=0.7, color="steelblue")
         ax.set_xlabel("Effect Magnitude (Absolute)")
         ax.set_title("Policy Ranking by Effectiveness")
 
@@ -854,8 +857,9 @@ class MPOWERMechanismAnalysis:
             self.create_mechanism_visualization(
                 results, save_path=output_path / "mechanism_analysis_plots.png"
             )
-
-        print(f"Mechanism analysis results exported to: {output_path}")
+        _logger = logging.getLogger(__name__)
+        _msg = f"Mechanism analysis results exported to: {output_path}"
+        _logger.info(_msg)
 
     def _convert_for_json(self, obj: Any) -> Any:
         """Convert numpy types to JSON-serializable types."""
