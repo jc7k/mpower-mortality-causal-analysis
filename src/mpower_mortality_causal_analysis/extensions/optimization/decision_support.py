@@ -14,7 +14,6 @@ import pandas as pd
 
 try:
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
     PLOTTING_AVAILABLE = True
 except ImportError:
@@ -265,7 +264,7 @@ class PolicyDecisionSupport:
             return sequence
 
         # Reorder sequence by feasibility (keeping high-impact policies early)
-        sequence_with_feasibility = [
+        _sequence_with_feasibility = [
             (policy, country_feasibility.get(policy, 0.5)) for policy in sequence
         ]
 
@@ -906,14 +905,14 @@ class PolicyDecisionSupport:
         # Plot 1: Policies and costs per period
         ax1_twin = ax1.twinx()
 
-        bars = ax1.bar(
+        _bars = ax1.bar(
             periods,
             policies_per_period,
             alpha=0.7,
             color="skyblue",
             label="Number of Policies",
         )
-        line = ax1_twin.plot(
+        _line = ax1_twin.plot(
             periods,
             costs_per_period,
             color="red",
@@ -936,7 +935,7 @@ class PolicyDecisionSupport:
             "green" if f >= 0.7 else "orange" if f >= 0.4 else "red"
             for f in feasibility_per_period
         ]
-        bars2 = ax2.bar(periods, feasibility_per_period, color=colors, alpha=0.7)
+        _bars2 = ax2.bar(periods, feasibility_per_period, color=colors, alpha=0.7)
 
         ax2.set_ylabel("Feasibility Score")
         ax2.set_ylim(0, 1)

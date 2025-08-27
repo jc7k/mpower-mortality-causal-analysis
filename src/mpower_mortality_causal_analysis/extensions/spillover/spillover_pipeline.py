@@ -796,7 +796,8 @@ class SpilloverPipeline:
                     "years": self.years,
                     "cumulative": cumulative.tolist(),
                 }
-            except:
+            except Exception:
+                # Non-fatal; optionally log warning in caller's logger
                 pass
 
         return dashboard_data

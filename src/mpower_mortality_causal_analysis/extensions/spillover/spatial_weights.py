@@ -376,7 +376,9 @@ class SpatialWeightMatrix:
             "density": (W > 0).sum() / (self.n_countries**2 - self.n_countries),
         }
 
-    def to_sparse(self, W: np.ndarray) -> "scipy.sparse.csr_matrix":
+    from typing import Any
+
+    def to_sparse(self, W: np.ndarray) -> Any:
         """Convert weight matrix to sparse format for efficiency.
 
         Args:

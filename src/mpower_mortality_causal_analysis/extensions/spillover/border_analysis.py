@@ -63,7 +63,7 @@ class BorderDiscontinuity:
                 pairs.append((row["country1"], row["country2"]))
         else:
             # Create mock border pairs for demonstration
-            countries = [
+            _countries = [
                 "USA",
                 "Canada",
                 "Mexico",
@@ -459,13 +459,13 @@ class BorderDiscontinuity:
                 median_val = self.border_data[var].median()
 
                 # High group
-                high_data = self.border_data[self.border_data[var] >= median_val]
+                _high_data = self.border_data[self.border_data[var] >= median_val]
                 high_effect = self.estimate_border_effect(
                     outcome, treatment, bandwidth=50
                 )
 
                 # Low group
-                low_data = self.border_data[self.border_data[var] < median_val]
+                _low_data = self.border_data[self.border_data[var] < median_val]
                 low_effect = self.estimate_border_effect(
                     outcome, treatment, bandwidth=50
                 )

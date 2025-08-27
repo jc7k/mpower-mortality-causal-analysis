@@ -21,6 +21,7 @@ Usage:
 import json
 import logging
 import warnings
+
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -29,7 +30,6 @@ import pandas as pd
 
 try:
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
     PLOTTING_AVAILABLE = True
 except ImportError:
@@ -41,14 +41,12 @@ except ImportError:
 # Core analysis pipeline
 from .analysis import MPOWERAnalysisPipeline
 
+# Supporting utilities
 # Extension pipelines
 from .extensions.advanced_did.method_comparison import MethodComparison
 from .extensions.cost_effectiveness.ce_pipeline import CEPipeline
-from .extensions.spillover.spillover_pipeline import SpilloverPipeline
 from .extensions.optimization.decision_support import PolicyDecisionSupport
-
-# Supporting utilities
-from .causal_inference.utils.mechanism_analysis import MPOWER_COMPONENTS
+from .extensions.spillover.spillover_pipeline import SpilloverPipeline
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

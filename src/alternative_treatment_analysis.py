@@ -555,8 +555,6 @@ class AlternativeTreatmentAnalysis:
 
         # Export summary to Excel
         try:
-            import openpyxl
-
             # Create summary DataFrame
             summary_data = []
             for outcome in self.outcomes:

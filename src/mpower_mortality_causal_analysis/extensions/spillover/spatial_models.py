@@ -648,14 +648,14 @@ class SpatialPanelModel:
         n = len(e) if len(e) <= self.n_units else self.n_units
         S0 = self.W.sum()
 
-        I = (n / S0) * (numerator / denominator)
+        moran_i = (n / S0) * (numerator / denominator)
 
         # Expected value and variance under null hypothesis
         E_I = -1 / (n - 1)
 
         # Approximate variance (simplified)
-        b2 = (e**2).sum() / n
-        b4 = (e**4).sum() / n
+        _b2 = (e**2).sum() / n
+        _b4 = (e**4).sum() / n
         S1 = 0.5 * ((self.W + self.W.T) ** 2).sum()
         S2 = (self.W.sum(axis=1) ** 2).sum()
 
@@ -667,11 +667,11 @@ class SpatialPanelModel:
         ) / ((n - 1) * (n - 2) * (n - 3) * S0**2)
 
         # Z-score and p-value
-        z_score = (I - E_I) / np.sqrt(Var_I) if Var_I > 0 else 0
+        z_score = (moran_i - E_I) / np.sqrt(Var_I) if Var_I > 0 else 0
         p_value = 2 * (1 - norm.cdf(abs(z_score)))
 
         return {
-            "statistic": I,
+            "statistic": moran_i,
             "expected": E_I,
             "variance": Var_I,
             "z_score": z_score,

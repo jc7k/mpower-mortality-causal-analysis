@@ -15,7 +15,6 @@ from pandas import DataFrame
 
 try:
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
     PLOTTING_AVAILABLE = True
 except ImportError:
@@ -327,7 +326,7 @@ class RobustnessTests:
                             if "treat" in key.lower() or "post" in key.lower():
                                 return value
             return None
-        except:
+        except Exception:
             return None
 
     def specification_sensitivity(

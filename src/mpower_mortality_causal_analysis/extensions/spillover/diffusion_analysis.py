@@ -376,7 +376,7 @@ class PolicyDiffusionNetwork:
                     largest_idx = np.argmax(np.abs(eigenvalues))
                     centrality = np.abs(eigenvectors[:, largest_idx])
                     metrics["eigenvector_centrality"] = centrality[i]
-                except:
+                except Exception:
                     metrics["eigenvector_centrality"] = 0
 
                 # Influence reach (countries adopted after this one)

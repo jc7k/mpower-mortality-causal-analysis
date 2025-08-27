@@ -16,7 +16,6 @@ from scipy import stats
 
 try:
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
     PLOTTING_AVAILABLE = True
 except ImportError:
@@ -458,7 +457,7 @@ class PolicyInteractionAnalysis:
             means_list = [dr["mean_outcome"] for dr in dose_response]
 
             # Weighted by sample size
-            weights = [dr["n_observations"] for dr in dose_response]
+            _weights = [dr["n_observations"] for dr in dose_response]
 
             correlation, p_value = stats.pearsonr(levels_list, means_list)
 

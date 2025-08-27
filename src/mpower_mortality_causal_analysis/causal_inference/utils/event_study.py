@@ -15,13 +15,12 @@ from pandas import DataFrame
 
 try:
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
     PLOTTING_AVAILABLE = True
 except ImportError:
     PLOTTING_AVAILABLE = False
     warnings.warn(
-        "Plotting packages not available. Install matplotlib and seaborn for plotting.",
+        "Plotting packages not available. Install matplotlib for plotting.",
         stacklevel=2,
     )
 
@@ -225,7 +224,7 @@ class EventStudyAnalysis:
         try:
             import statsmodels.api as sm
 
-            from statsmodels.stats.sandwich_covariance import cov_cluster
+            # from statsmodels.stats.sandwich_covariance import cov_cluster  # unused
 
             # Create fixed effects dummies and convert to float64 for consistency
             unit_dummies = pd.get_dummies(
