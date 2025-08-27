@@ -79,6 +79,7 @@ packages = ["src/mpower_mortality_causal_analysis"]
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+include = ["src/**/*.py"]
 
 [tool.ruff.lint]
 # Focus on critical errors and basic style for now - can gradually enable more rules
