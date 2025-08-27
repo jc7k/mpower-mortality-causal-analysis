@@ -382,12 +382,7 @@ class CallawayDiD(CausalInferenceBase):
         control_group: str,
     ) -> dict[str, float]:
         """Estimate ATT(g,t) for specific group and time period using Python."""
-        try:
-            import statsmodels.api as sm
-        except ImportError:
-            raise ImportError(
-                "Python fallback requires statsmodels: pip install statsmodels"
-            )
+        # Note: statsmodels is not required for this simplified fallback path
 
         # Filter data for this specific comparison
         data_subset = self.data.copy()
@@ -581,11 +576,20 @@ class CallawayDiD(CausalInferenceBase):
             overall_att = pandas2ri.rpy2py(agg_result.rx2("overall.att"))[0]
             overall_se = pandas2ri.rpy2py(agg_result.rx2("overall.se"))[0]
 
+            # Compute two-tailed p-value using normal approximation when available
+            try:
+                from scipy.stats import norm  # type: ignore
+
+                z = overall_att / overall_se if overall_se else np.nan
+                pval = float(2 * (1 - norm.cdf(abs(z)))) if np.isfinite(z) else np.nan
+            except Exception:
+                pval = np.nan
+
             return {
                 "method": method,
                 "att": overall_att,
                 "se": overall_se,
-                "pvalue": 2 * (1 - np.abs(overall_att / overall_se)),
+                "pvalue": pval,
                 "backend": "R_did",
                 "r_result": agg_result,
             }
@@ -615,11 +619,20 @@ class CallawayDiD(CausalInferenceBase):
             weighted_att = np.average(att_gt_df["att"], weights=weights)
             pooled_se = np.sqrt(1 / weights.sum())
 
+            # Compute two-tailed p-value if scipy is available
+            try:
+                from scipy.stats import norm  # type: ignore
+
+                z = weighted_att / pooled_se if pooled_se else np.nan
+                pval = float(2 * (1 - norm.cdf(abs(z)))) if np.isfinite(z) else np.nan
+            except Exception:
+                pval = np.nan
+
             return {
                 "method": "simple",
                 "att": weighted_att,
                 "se": pooled_se,
-                "pvalue": 2 * (1 - np.abs(weighted_att / pooled_se)),
+                "pvalue": pval,
                 "n_estimates": len(att_gt_df),
                 "backend": self._backend_used,
             }
@@ -633,12 +646,23 @@ class CallawayDiD(CausalInferenceBase):
                 weighted_att = np.average(group_data["att"], weights=weights)
                 pooled_se = np.sqrt(1 / weights.sum())
 
+                # Compute two-tailed p-value if scipy is available
+                try:
+                    from scipy.stats import norm  # type: ignore
+
+                    z = weighted_att / pooled_se if pooled_se else np.nan
+                    pval = (
+                        float(2 * (1 - norm.cdf(abs(z)))) if np.isfinite(z) else np.nan
+                    )
+                except Exception:
+                    pval = np.nan
+
                 group_results.append(
                     {
                         "group": group,
                         "att": weighted_att,
                         "se": pooled_se,
-                        "pvalue": 2 * (1 - np.abs(weighted_att / pooled_se)),
+                        "pvalue": pval,
                         "n_periods": len(group_data),
                     }
                 )
@@ -658,12 +682,23 @@ class CallawayDiD(CausalInferenceBase):
                 weighted_att = np.average(time_data["att"], weights=weights)
                 pooled_se = np.sqrt(1 / weights.sum())
 
+                # Compute two-tailed p-value if scipy is available
+                try:
+                    from scipy.stats import norm  # type: ignore
+
+                    z = weighted_att / pooled_se if pooled_se else np.nan
+                    pval = (
+                        float(2 * (1 - norm.cdf(abs(z)))) if np.isfinite(z) else np.nan
+                    )
+                except Exception:
+                    pval = np.nan
+
                 time_results.append(
                     {
                         "time": time_period,
                         "att": weighted_att,
                         "se": pooled_se,
-                        "pvalue": 2 * (1 - np.abs(weighted_att / pooled_se)),
+                        "pvalue": pval,
                         "n_groups": len(time_data),
                     }
                 )
@@ -690,12 +725,23 @@ class CallawayDiD(CausalInferenceBase):
                 weighted_att = np.average(et_data["att"], weights=weights)
                 pooled_se = np.sqrt(1 / weights.sum())
 
+                # Compute two-tailed p-value if scipy is available
+                try:
+                    from scipy.stats import norm  # type: ignore
+
+                    z = weighted_att / pooled_se if pooled_se else np.nan
+                    pval = (
+                        float(2 * (1 - norm.cdf(abs(z)))) if np.isfinite(z) else np.nan
+                    )
+                except Exception:
+                    pval = np.nan
+
                 event_results.append(
                     {
                         "event_time": event_time,
                         "att": weighted_att,
                         "se": pooled_se,
-                        "pvalue": 2 * (1 - np.abs(weighted_att / pooled_se)),
+                        "pvalue": pval,
                         "n_estimates": len(et_data),
                     }
                 )
@@ -718,7 +764,7 @@ class CallawayDiD(CausalInferenceBase):
             try:
                 r_summary = r_base.summary(self._fitted_model)
                 return str(pandas2ri.rpy2py(r_summary))
-            except:
+            except Exception:
                 pass
 
         # Try differences package summary
@@ -727,7 +773,7 @@ class CallawayDiD(CausalInferenceBase):
         ):
             try:
                 return str(self._fitted_model.summary())
-            except:
+            except Exception:
                 pass
 
         # Fallback summary
