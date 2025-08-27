@@ -343,14 +343,13 @@ class MPOWERDataPrep:
         # Identify numeric columns for filling
         numeric_cols = filled_data.select_dtypes(include=[np.number]).columns
 
-        # Forward fill within countries, then backward fill
-        for country in filled_data[self.country_col].unique():
-            country_mask = filled_data[self.country_col] == country
-            filled_data.loc[country_mask, numeric_cols] = (
-                filled_data.loc[country_mask, numeric_cols]
-                .fillna(method="ffill")
-                .fillna(method="bfill")
-            )
+        # Forward fill within countries, then backward fill (vectorized)
+        filled_data[numeric_cols] = (
+            filled_data.sort_values([self.country_col, self.year_col])
+            .groupby(self.country_col)[numeric_cols]
+            .apply(lambda g: g.fillna(method="ffill").fillna(method="bfill"))
+            .reset_index(level=0, drop=True)
+        )
 
         return filled_data
 
